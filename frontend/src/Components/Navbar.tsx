@@ -1,6 +1,6 @@
 import React from 'react';
 import "../index.css";
-import { BackgroundBeams } from "./../Components/ui/background-beams"; // Adjust the import path as necessary
+// import { BackgroundBeams } from "./../Components/ui/background-beams"; // Adjust the import path as necessary
 
 const Navbar = () => {
   return (

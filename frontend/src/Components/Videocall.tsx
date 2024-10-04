@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Peer from 'peerjs';
+import Peer, { MediaConnection } from 'peerjs';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
@@ -7,7 +7,7 @@ const Videocall: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peer = useRef<Peer | null>(null);
-  const [call, setCall] = useState<Peer.MediaConnection | null>(null);
+  const [call, setCall] = useState<MediaConnection | null>(null);
 
   useEffect(() => {
     // Initialize PeerJS
