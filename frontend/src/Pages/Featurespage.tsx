@@ -53,31 +53,31 @@ const Featurespage = () => {
         <h2 className="text-green-500 text-3xl font-semibold mb-4">Available Trainers</h2>
         <table className="min-w-full bg-black rounded-lg overflow-hidden shadow-md text-green-500">
           <thead className="bg-gray-200">
-            <tr className="text-left ">
+            <tr className="text-center ">
               <th className="py-3 px-4 text-gray-700 font-semibold">Name</th>
-              <th className="py-3 px-4 text-gray-700 font-semibold">Email</th>
+              {/* <th className="py-3 px-4 text-gray-700 font-semibold">Email</th> */}
               <th className="py-3 px-4 text-gray-700 font-semibold">Qualification</th>
-              <th className="py-3 px-4 text-gray-700 font-semibold">City</th>
+              {/* <th className="py-3 px-4 text-gray-700 font-semibold">City</th> */}
               <th className="py-3 px-4 text-gray-700 font-semibold">Subjects</th>
-              <th className="py-3 px-4 text-gray-700 font-semibold">Action</th>
+              {/* <th className="py-3 px-4 text-gray-700 font-semibold">Action</th> */}
             </tr>
           </thead>
           <tbody>
             {trainers.map((trainer) => (
               <tr key={trainer.email} className="text-center hover:bg-gray-400 hover:text-black transition-colors duration-200">
                 <td className="py-3 px-4 border-b border-gray-300">{trainer.name}</td>
-                <td className="py-3 px-4 border-b border-gray-300">{trainer.email}</td>
+  
                 <td className="py-3 px-4 border-b border-gray-300">{trainer.qualification}</td>
-                <td className="py-3 px-4 border-b border-gray-300">{trainer.city}</td>
+
                 <td className="py-3 px-4 border-b border-gray-300">{trainer.subjects.join(', ')}</td>
-                <td className="py-3 px-4 border-b border-gray-300">
+                {/* <td className="py-3 px-4 border-b border-gray-300">
                   <button
                     onClick={() => console.log("Clicked")}
                     className="bg-blue-500 text-white rounded-lg px-4 py-2 transition-transform transform hover:scale-105"
                   >
                     Request session
                   </button>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
