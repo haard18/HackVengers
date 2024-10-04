@@ -46,7 +46,7 @@ model Trainer {
   ratings   Ratings[] // Ratings received by this trainer
 }
 
-model Session {
+model Session { 
   id        String   @id @default(cuid())
   startTime DateTime
   endTime   DateTime
