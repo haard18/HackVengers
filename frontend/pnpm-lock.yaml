@@ -11,9 +11,6 @@ importers:
       '@react-three/fiber':
         specifier: ^8.17.9
         version: 8.17.9(react-dom@18.3.1(react@18.3.1))(react-native@0.75.4(@babel/core@7.25.7)(@babel/preset-env@7.25.7(@babel/core@7.25.7))(@types/react@18.3.11)(react@18.3.1)(typescript@5.6.2))(react@18.3.1)(three@0.169.0)
-      '@types/file-saver':
-        specifier: ^2.0.7
-        version: 2.0.7
       '@types/recordrtc':
         specifier: ^5.6.14
         version: 5.6.14
@@ -75,6 +72,9 @@ importers:
       '@eslint/js':
         specifier: ^9.9.0
         version: 9.11.1
+      '@types/file-saver':
+        specifier: ^2.0.7
+        version: 2.0.7
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.11

@@ -40,9 +40,9 @@ const MySessions = () => {
         }
     };
 
-    const handleJoinCall = (sessionId: string) => {
+    const handleJoinCall = (email: string) => {
         // Navigate to the VideoCall page with just the sessionId
-        navigate(`/videocall`, { state: { sessionId } });
+        navigate(`/videocall`, { state: { email } });
     };
 
     useEffect(() => {
@@ -51,7 +51,7 @@ const MySessions = () => {
             return;
         }
         fetchMySessions();
-    }, );
+    }, [token]);
 
     useEffect(() => {
         const upcomingSession = sessions.find(session => session.status === 'Accepted' && new Date(session.endTime) > new Date());
@@ -96,7 +96,7 @@ const MySessions = () => {
                     <p className="text-gray-700">Topic: {nextSession.topic}</p>
                     <p className="text-gray-700">Ends in: {formatTimeLeft(timeLeft)}</p>
                     <button
-                        onClick={() => handleJoinCall(nextSession.id)} // Pass session ID
+                        onClick={() => handleJoinCall(nextSession.trainee.email)} // Pass session ID
                         className="mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-600"
                     >
                         Join Call

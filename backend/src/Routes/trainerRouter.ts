@@ -43,9 +43,60 @@ const sendMail = async (email: string, subject: string, text: string,from:string
     const mailOptions = {
         from: `EduHacks ${from}`,
         to: email,
-        subJect: subject,
-        text: text
-    }
+        subject: subject,
+        html: `
+          <div style="
+            background-color: #f4f4f9;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+          ">
+            <div style="
+              max-width: 600px;
+              margin: 0 auto;
+              background-color: white;
+              padding: 20px;
+              border-radius: 10px;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              text-align: center;
+            ">
+              <h1 style="
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 20px;
+              ">
+                ${subject}
+              </h1>
+              <p style="
+                color: #555;
+                font-size: 16px;
+                line-height: 1.6;
+                margin-bottom: 30px;
+              ">
+                ${text}
+              </p>
+              <a href="#" style="
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px;
+                text-decoration: none;
+                font-size: 16px;
+              ">
+                Call to Action
+              </a>
+            </div>
+            <footer style="
+              margin-top: 20px;
+              color: #999;
+              font-size: 12px;
+              text-align: center;
+            ">
+              &copy; 2024 EduHacks. All rights reserved.
+            </footer>
+          </div>
+        `
+    };
+    
     try {
         await transporter.sendMail(mailOptions);
         console.log("Email sent");
