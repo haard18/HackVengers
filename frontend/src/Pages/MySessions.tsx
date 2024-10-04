@@ -10,7 +10,7 @@ const MySessions = () => {
         endTime: string;
         status: string;
         traineeId: string;
-        trainer: { name: string; email: string; phone: string };
+        trainee: { name: string; email: string; phone: string }; // Updated to include trainee information
     };
 
     const token = localStorage.getItem('token');
@@ -18,13 +18,18 @@ const MySessions = () => {
     const [sessions, setSessions] = useState<Session[]>([]);
     const [nextSession, setNextSession] = useState<Session | null>(null);
     const [timeLeft, setTimeLeft] = useState<number>(0);
+    const [traineeEmail, setTraineeEmail] = useState<string>('');
     const navigate = useNavigate();
 
     const fetchMySessions = async () => {
         const response = await axios.get(`http://localhost:3000/api/${userType}/getMySessions`, {
             headers: { 'auth-token': token }
         });
-        console.log(response.data);
+        // Assuming response.data is an array
+        if (response.data.length > 0) {
+            setTraineeEmail(response.data[0].trainee.email); // Set email from the first session
+        }
+        console.log('Fetched sessions:', response.data);
         setSessions(response.data);
     };
 
@@ -40,9 +45,9 @@ const MySessions = () => {
         }
     };
 
-    const handleJoinCall = (email: string) => {
-        // Navigate to the VideoCall page with just the sessionId
-        navigate(`/videocall`, { state: { email } });
+    const handleJoinCall = () => {
+        // Navigate to the VideoCall page with the trainee's email
+        navigate(`/videocall`, { state: { traineeEmail } }); // Pass trainee's email for navigation
     };
 
     useEffect(() => {
@@ -96,7 +101,7 @@ const MySessions = () => {
                     <p className="text-gray-700">Topic: {nextSession.topic}</p>
                     <p className="text-gray-700">Ends in: {formatTimeLeft(timeLeft)}</p>
                     <button
-                        onClick={() => handleJoinCall(nextSession.trainee.email)} // Pass session ID
+                        onClick={handleJoinCall} // Directly call join function
                         className="mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-600"
                     >
                         Join Call
@@ -115,8 +120,8 @@ const MySessions = () => {
                         </p>
                         <p className="text-gray-700 mb-2">
                             {userType === 'trainer'
-                                ? `Trainee: ${session.traineeId}`
-                                : `Trainer: ${session.trainer.name}`}
+                                ? `Trainee: ${session.trainee.name} (${session.trainee.email})` // Show trainee name and email
+                                : `Trainer: ${session.trainee.name}`}
                         </p>
                         {userType === 'trainer' && session.status === 'Pending' && (
                             <button
@@ -124,6 +129,14 @@ const MySessions = () => {
                                 onClick={() => handleAcceptSession(session.id)}
                             >
                                 Accept Session
+                            </button>
+                        )}
+                        {session.status === 'Accepted' && (
+                            <button
+                                onClick={handleJoinCall} // Directly call join function
+                                className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                Join Call
                             </button>
                         )}
                     </div>

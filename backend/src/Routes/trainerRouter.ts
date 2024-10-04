@@ -26,7 +26,7 @@ const loginSchema = z.object({
     email: z.string().email(),
     password: z.string()
 });
-const sendMail = async (email: string, subject: string, text: string,from:string) => {
+const sendMail = async (email: string, subject: string, text: string) => {
 
     
     const transporter = nodemailer.createTransport({
@@ -41,7 +41,7 @@ const sendMail = async (email: string, subject: string, text: string,from:string
 
 
     const mailOptions = {
-        from: `EduHacks ${from}`,
+        from: `EduHacks`,
         to: email,
         subject: subject,
         html: `
@@ -106,18 +106,8 @@ const sendMail = async (email: string, subject: string, text: string,from:string
 }
 trainerRouter.post('/sendMail', async (req, res) => {
     const { email, subject, text } = req.body;
-    const token=req.headers['auth-token'];
-    if (!token || typeof token !== 'string') {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-    }
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    const trainerId = (decodedToken as jwt.JwtPayload).id as string;
-    if (!trainerId || typeof trainerId !== 'string') {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-    }
-    sendMail(email, subject, text,trainerId);
+    
+    sendMail(email, subject, text);
     res.json({ message: "Mail sent" });
 
 })

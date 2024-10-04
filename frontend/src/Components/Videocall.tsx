@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
 import RecordRTC from 'recordrtc';
 import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaVideo, FaVideoSlash, FaClipboard } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
@@ -14,7 +16,9 @@ const Videocall: React.FC = () => {
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const [transcription, setTranscription] = useState<string>(''); // State to hold transcription
-  const email = useLocation().state.email;
+  const email = useLocation().state.traineeEmail;
+
+  const userType = localStorage.getItem('userType'); // Get userType from local storage
 
   useEffect(() => {
     peer.current = new Peer();
@@ -86,10 +90,6 @@ const Videocall: React.FC = () => {
     }
   };
 
-
-
-
-
   const toggleMute = () => {
     if (localVideoRef.current && localVideoRef.current.srcObject) {
       const stream = localVideoRef.current.srcObject as MediaStream;
@@ -115,6 +115,20 @@ const Videocall: React.FC = () => {
       navigator.clipboard.writeText(peerId);
       alert('Peer ID copied to clipboard');
     }
+  };
+
+  const sendEmail = async () => {
+    const token = localStorage.getItem('auth-token');
+    const response = await axios.post('http://localhost:3000/api/trainer/sendMail', {
+      email,
+      subject: "Join the video call",
+      text: peerId,
+    }, {
+      headers: {
+        'auth-token': token,
+      }
+    });
+    console.log('Email sent:', response.data);
   };
 
   return (
@@ -145,13 +159,21 @@ const Videocall: React.FC = () => {
           Start Call
         </button>
         <button
-          // onClick={saveTranscriptionLocally}
           disabled={!transcription}
           className={`ml-4 p-2 bg-orange-500 text-white rounded-lg shadow-md 
                       hover:bg-orange-600 focus:outline-none disabled:bg-gray-400`}
         >
           Download Transcription
         </button>
+        {userType === 'trainer' && ( // Conditionally render the button for trainee
+          <button
+            onClick={sendEmail}
+            className="ml-4 p-2 bg-blue-500 text-white rounded-lg shadow-md 
+                        hover:bg-blue-600 focus:outline-none"
+          >
+            Send Email
+          </button>
+        )}
       </div>
 
       <div className="relative w-full flex justify-center items-center">
@@ -198,4 +220,3 @@ const Videocall: React.FC = () => {
 };
 
 export default Videocall;
-
