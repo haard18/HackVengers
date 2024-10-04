@@ -2,25 +2,27 @@
 
 import { CardSpotlight } from "./ui/card-spotlight";
 
-export function CardSpotlightDemo() {
+export function Cards({ title, label, list }: { title: string, label: string, list: string[] }) {
   return (
     <CardSpotlight className="h-96 w-96">
-      <p className="text-xl font-bold relative z-20 mt-2 text-white">
-        Authentication steps
-      </p>
+
       <div className="text-neutral-200 mt-4 relative z-20">
-        Follow these steps to secure your account:
-        <ul className="list-none  mt-2">
-          <Step title="Enter your email address" />
-          <Step title="Create a strong password" />
-          <Step title="Set up two-factor authentication" />
-          <Step title="Verify your identity" />
+        {label}
+        <ul className="list-none mt-2">
+          {list.map((item, index) => (
+            <Step key={index} title={item} />
+          ))}
         </ul>
       </div>
       <p className="text-neutral-300 mt-4 relative z-20 text-sm">
         Ensuring your account is properly secured helps protect your personal
         information and data.
       </p>
+      <div className="flex justify-center mt-5   ">
+        <button className="text-xl text-center px-4  py-2 rounded-lg bg-white font-bold relative z-20 mt-2 text-black">
+          {title}
+        </button>
+      </div>
     </CardSpotlight>
   );
 }

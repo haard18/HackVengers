@@ -3,6 +3,7 @@ import Navbar from './Components/Navbar';
 import Landingpage from './Pages/Landingpage';
 
 import Featurespage from './Pages/Featurespage';
+import Connectpage from './Pages/Connectpage';
 import Authentication from './Components/Authentication';
 // Import other components for routing
 
@@ -13,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landingpage />} />
         <Route path="/features" element={<Featurespage/>} />
-        <Route path="/auth" element={<Authentication/>} />
+      <Route path="/connect" element={<Connectpage/>} />        <Route path="/auth" element={<Authentication/>} />
 
         {/* Add more routes as needed */}
       </Routes>
