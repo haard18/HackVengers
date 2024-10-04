@@ -1,5 +1,9 @@
 import express, { Router } from 'express';
 import { configDotenv } from 'dotenv';
+const PhysicsURL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLxn-W1Py3Td00ZeiM759oV60BlTmmm4rUZCY4_YElxXA6agfUnjVj-tPOsHFelsYjjGg&usqp=CAU";
+const MathsURL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCnAVRcmamSxvXodC8jxVYaclFCBci7EVyqA&sJ"
+const BiologyURL="https://static.vecteezy.com/system/resources/previews/026/325/679/original/biology-icon-symbol-design-illustration-vector.jpg"
+const ChemistryURL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwicJ2vRsRIAAp8eY1XLztqqEO6L7kcyVGKA&s";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 // import { PrismaClient } from '@prisma/client';
@@ -25,6 +29,36 @@ trainerRouter.post('/signUp', async (req, res) => {
         const { name, email, password, phone, qualification, city, subjects } = signUpSchema.parse(req.body);
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+        
+        // Determine the image URL based on the subjects array
+        let imageUrl = '';
+
+        if (subjects.length === 1) {
+            // If there's only one subject, use the corresponding image URL
+            const subject = subjects[0].toLowerCase(); // Convert to lowercase for consistency
+            if (subject === 'physics') {
+                imageUrl = PhysicsURL;
+            } else if (subject === 'math') {
+                imageUrl = MathsURL;
+            } else if (subject === 'biology') {
+                imageUrl = BiologyURL;
+            } else if (subject === 'chemistry') {
+                imageUrl = ChemistryURL;
+            }
+        } else if (subjects.length > 1) {
+            // If there are multiple subjects, use the image URL of the first subject
+            const firstSubject = subjects[0].toLowerCase();
+            if (firstSubject === 'physics') {
+                imageUrl = PhysicsURL;
+            } else if (firstSubject === 'math') {
+                imageUrl = MathsURL;
+            } else if (firstSubject === 'biology') {
+                imageUrl = BiologyURL;
+            } else if (firstSubject === 'chemistry') {
+                imageUrl = ChemistryURL;
+            }
+        }
+
         const trainer = await prisma.trainer.create({
             data: {
                 name,
@@ -33,9 +67,11 @@ trainerRouter.post('/signUp', async (req, res) => {
                 phone,
                 qualification,
                 city,
-                subjects: subjects
+                subjects: subjects,
+                iconurl: imageUrl // Add imageUrl to the trainer data
             }
         });
+
         const token = jwt.sign({ id: trainer.id }, process.env.JWT_SECRET || 'secret');
         res.json({ token });
     } catch (error) {
@@ -44,6 +80,7 @@ trainerRouter.post('/signUp', async (req, res) => {
         res.status(400).json({ error: "Invalid data" });
     }
 });
+
 trainerRouter.post('/login', async (req, res) => {
     try {
         const { success } = loginSchema.safeParse(req.body);
@@ -147,6 +184,10 @@ trainerRouter.post('/acceptSession/:sessionId', async (req, res) => {
     } catch (error) {
         res.status(400).json({ error: "Invalid data" });
     }
+});
+trainerRouter.get('/getAllTrainers', async (req, res) => {
+    const trainers = await prisma.trainer.findMany();
+    res.json(trainers);
 });
 
 export default trainerRouter

@@ -32,45 +32,49 @@ model Trainee {
 }
 
 model Trainer {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  phone     String
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  phone         String
+  iconurl       String
   qualification String
-  city      String
-  subjects  String[]
-  createdAt DateTime @default(now())
-  sessions  Session[]
-  logs      Logs[]
-  ratings   Ratings[] // Ratings received by this trainer
+  city          String
+  subjects      String[]
+  createdAt     DateTime  @default(now())
+  sessions      Session[]
+  logs          Logs[]
+  ratings       Ratings[] // Ratings received by this trainer
 }
 
-model Session { 
+model Session {
   id        String   @id @default(cuid())
   startTime DateTime
   endTime   DateTime
   status    String
-
+  topic     String
   trainee   Trainee? @relation(fields: [traineeId], references: [id])
   traineeId String?
-
+  
   trainer   Trainer? @relation(fields: [trainerId], references: [id])
   trainerId String?
+
+  ratings   Ratings[] // Ratings for this session
 }
 
 model Ratings {
   id        String   @id @default(cuid()) // Unique ID for the rating
-  rating    Int      // Rating out of 5
-  comment   String?  // Optional comment provided by trainee
+  rating    Int // Rating out of 5
+  comment   String? // Optional comment provided by trainee
   createdAt DateTime @default(now())
-
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String // ID of the session being rated
   // Relations
-  trainee   Trainee  @relation(fields: [traineeId], references: [id])
-  traineeId String   // ID of the trainee who gave the rating
+  trainee   Trainee @relation(fields: [traineeId], references: [id])
+  traineeId String // ID of the trainee who gave the rating
 
-  trainer   Trainer  @relation(fields: [trainerId], references: [id])
-  trainerId String   // ID of the trainer being rated
+  trainer   Trainer @relation(fields: [trainerId], references: [id])
+  trainerId String // ID of the trainer being rated
 }
 
 model Logs {
