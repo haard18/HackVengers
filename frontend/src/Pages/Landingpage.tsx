@@ -5,7 +5,7 @@ import { BackgroundBeams } from '../Components/ui/background-beams'
 const Landingpage = () => {
   return (
     <>
-    <div className='bg-black'>
+    <div className='bg-black h-screen'>
         <BackgroundBeamsDemo/>
         <BackgroundBeams/>
     </div>
