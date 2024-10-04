@@ -20,7 +20,7 @@ function App() {
         <Route path="/auth" element={<Authentication />} />
         <Route path='/sessions' element={<MySessions  />} />
         <Route path="/videocall" element={<Videocall />} />
-        <Route path="/videocall" element={<Videocall />} />
+        {/* <Route path="/videocall" element={<Videocall />} /> */}
         {/* Add more routes as needed */}
       </Routes>
     </Router>
