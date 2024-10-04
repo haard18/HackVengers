@@ -65,7 +65,7 @@ export const CardSpotlight = ({
               [34,197,94],
               [139, 92, 246],
             ]}
-            dotSize={7}
+            dotSize={3}
           />
         )}
       </motion.div>
