@@ -8,7 +8,7 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/landing" element={<Landingpage />} />
+        <Route path="/" element={<Landingpage />} />
 
         {/* Add more routes as needed */}
       </Routes>
