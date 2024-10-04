@@ -51,7 +51,7 @@ const MySessions = () => {
             return;
         }
         fetchMySessions();
-    }, [token]);
+    }, );
 
     useEffect(() => {
         const upcomingSession = sessions.find(session => session.status === 'Accepted' && new Date(session.endTime) > new Date());
