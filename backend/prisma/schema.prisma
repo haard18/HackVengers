@@ -37,13 +37,13 @@ model Trainer {
   email     String   @unique
   password  String
   phone     String
+  qualification String
   city      String
   subjects  String[]
   createdAt DateTime @default(now())
   sessions  Session[]
   logs      Logs[]
   ratings   Ratings[] // Ratings received by this trainer
-  token     Int      @default(0)
 }
 
 model Session {
