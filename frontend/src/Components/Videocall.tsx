@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Peer from 'peerjs';
+import Peer, { MediaConnection } from 'peerjs';
 import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaExclamationTriangle, FaVideo, FaVideoSlash } from 'react-icons/fa';
 
 const Videocall: React.FC = () => {
@@ -8,7 +8,7 @@ const Videocall: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peer = useRef<Peer | null>(null);
-  const [call, setCall] = useState<Peer.MediaConnection | null>(null);
+  const [call, setCall] = useState<MediaConnection | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
 

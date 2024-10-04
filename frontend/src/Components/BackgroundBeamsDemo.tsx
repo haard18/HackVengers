@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+// import React from "react";
 // import { BackgroundBeams } from "./../Components/ui/background-beams";
 import TypingEffect from "./ui/TypingEffect"; // Adjust the import path as necessary
 
