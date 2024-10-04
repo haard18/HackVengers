@@ -1,0 +1,58 @@
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 1); /* Dark background for better visibility */
+    color: white;
+    position: relative;
+  }
+  
+  .loader {
+    width: 100%;
+    height: 20px;
+    background-color: #f3f3f3; /* Background for the loader */
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #4caf50; /* Green color for the progress */
+    width: 0%; /* Initial width for animation */
+    animation: loadingAnimation 4s linear forwards; /* Animate over 4 seconds */
+  }
+  
+  @keyframes loadingAnimation {
+    0% { width: 0%; }
+    25% { width: 25%; }
+    50% { width: 50%; }
+    75% { width: 75%; }
+    100% { width: 100%; }
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .loading-text {
+    margin: 0;
+    opacity: 0; /* Initially hidden */
+    animation: fadeIn 0.5s forwards; /* Fade in animation for each sentence */
+    animation-delay: calc(1s * var(--index)); /* Delay based on index for sequential appearance */
+    transition: opacity 0.5s ease-in-out; /* Smooth transition for fading */
+  }
+  
+  .fade-out {
+    opacity: 0; /* Class to apply fade out */
+    transition: opacity 0.5s ease-in-out; /* Smooth transition for fading out */
+  }
+  
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  

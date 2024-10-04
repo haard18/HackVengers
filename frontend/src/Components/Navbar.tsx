@@ -24,7 +24,7 @@ const navigate=useNavigate();
           <div className="hidden md:flex space-x-6">
             <a href="/" className="text-gray-300 hover:text-green-400 transition duration-300">Home</a>
             <a href="#" className="text-gray-300 hover:text-green-400 transition duration-300">About</a>
-            <a href="#" className="text-gray-300 hover:text-green-400 transition duration-300">Services</a>
+            <a href="/features" className="text-gray-300 hover:text-green-400 transition duration-300">Services</a>
             <a href="#" className="text-gray-300 hover:text-green-400 transition duration-300">Contact</a>
           </div>
           
