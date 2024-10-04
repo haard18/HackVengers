@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cards } from '../Components/Card';
 import { BackgroundBeams } from '../Components/ui/background-beams';

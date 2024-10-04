@@ -9,6 +9,7 @@ const Videocall: React.FC = () => {
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peer = useRef<Peer | null>(null);
   const [call, setCall] = useState<MediaConnection | null>(null);
+  const [call, setCall] = useState<MediaConnection | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
 
