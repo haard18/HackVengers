@@ -3,6 +3,7 @@ import Peer, { MediaConnection } from 'peerjs';
 import RecordRTC from 'recordrtc';
 import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaVideo, FaVideoSlash, FaClipboard } from 'react-icons/fa';
 import { saveAs } from 'file-saver';
+import { useLocation } from 'react-router-dom';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
@@ -15,6 +16,7 @@ const Videocall: React.FC = () => {
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const [transcription, setTranscription] = useState<string>(''); // State to hold transcription
+  const email = useLocation().state.email;
 
   useEffect(() => {
     peer.current = new Peer();
