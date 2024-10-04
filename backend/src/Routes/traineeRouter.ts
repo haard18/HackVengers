@@ -154,7 +154,7 @@ traineeRouter.post('/createSession', async (req, res) => {
 traineeRouter.post('/rateSession', async (req, res) => {
 
 });
-traineeRouter.post('/getSessions', async (req, res) => {
+traineeRouter.get('/getMySessions', async (req, res) => {
 
     const auth = req.headers['auth-token'];
 
@@ -177,6 +177,15 @@ traineeRouter.post('/getSessions', async (req, res) => {
         const sessions = await prisma.session.findMany({
             where: {
                 traineeId: traineeId
+            },
+            include:{
+                trainer: {
+                    select:{
+                        name: true,
+                        email: true,
+                        phone: true
+                    }
+                }
             }
         });
 

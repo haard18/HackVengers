@@ -99,6 +99,7 @@ const Authentication = () => {
       // Assuming the token is returned in response.data.token
       if (response.data.token) {
         localStorage.setItem('token', response.data.token); 
+        localStorage.setItem('userType', userType);
         navigate('/features');
         // Store the token in localStorage
         console.log('Success:', response.data);

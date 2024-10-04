@@ -111,7 +111,7 @@ trainerRouter.post('/login', async (req, res) => {
 
     }
 })
-trainerRouter.get('/getSessions', async (req, res) => {
+trainerRouter.get('/getMySessions', async (req, res) => {
     const auth = req.headers['auth-token'];
 
     // Check if auth is present and is a string
@@ -132,7 +132,16 @@ trainerRouter.get('/getSessions', async (req, res) => {
 
         const sessions = await prisma.session.findMany({
             where: {
-                trainerId: trainerId
+            trainerId: trainerId
+            },
+            include: {
+            trainee: {
+                select: {
+                name: true,
+                email: true,
+                phone: true
+                }
+            }
             }
         });
         
