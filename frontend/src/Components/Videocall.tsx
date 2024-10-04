@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Peer from 'peerjs';
-import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaExclamationTriangle, FaVideo, FaVideoSlash } from 'react-icons/fa';
+import Peer, { MediaConnection } from 'peerjs';
+import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaExclamationTriangle, FaVideo, FaVideoSlash, FaClipboard } from 'react-icons/fa';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
@@ -8,13 +8,12 @@ const Videocall: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peer = useRef<Peer | null>(null);
-  const [call, setCall] = useState<Peer.MediaConnection | null>(null);
+  const [call, setCall] = useState<MediaConnection | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
 
   useEffect(() => {
-    // Initialize PeerJS
-    peer.current = new Peer(); // No key is needed for peerjs unless using a specific server
+    peer.current = new Peer();
 
     peer.current.on('open', (id) => {
       setPeerId(id);
@@ -83,87 +82,112 @@ const Videocall: React.FC = () => {
     alert('Reporting the call to the system admin.');
   };
 
+  const copyToClipboard = () => {
+    if (peerId) {
+      navigator.clipboard.writeText(peerId)
+        .then(() => alert('Peer ID copied to clipboard!'))
+        .catch(err => console.error('Failed to copy: ', err));
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Video Call</h2>
-      <div className="mb-4">
+    <div className="flex flex-col items-center bg-white rounded-xl shadow-lg p-6 w-full max-w-5xl mx-auto">
+      <h2 className="text-2xl font-semibold mb-4">Video Call</h2>
+      <div className="w-full mb-4 text-center">
         <p className="text-lg">Your Peer ID: <strong>{peerId}</strong></p>
+        <button
+          onClick={copyToClipboard}
+          className="ml-2 p-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 focus:outline-none"
+        >
+          <FaClipboard className="inline w-4 h-4 mr-1" />
+          Copy ID
+        </button>
         <input
           type="text"
           placeholder="Enter remote peer ID"
           value={remoteId}
           onChange={(e) => setRemoteId(e.target.value)}
-          className="mt-2 p-2 border border-gray-300 rounded"
+          className="mt-2 p-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           onClick={startCall}
           disabled={!remoteId}
-          className={`mt-2 p-2 bg-blue-500 text-white rounded 
-                      hover:bg-blue-600 disabled:bg-gray-400`}
+          className={`ml-4 p-2 bg-blue-500 text-white rounded-lg shadow-md 
+                      hover:bg-blue-600 focus:outline-none disabled:bg-gray-400`}
         >
           Start Call
         </button>
       </div>
 
-      <div className="flex space-x-4">
-        {/* Local video */}
-        <video
-          ref={localVideoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-64 h-auto border border-gray-300 rounded"
-        />
-        {/* Remote video */}
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          className="w-64 h-auto border border-gray-300 rounded"
-        />
-      </div>
+      <div className="relative w-full flex justify-center items-center">
+        {/* Remote video (big screen) */}
+        <div className="w-full h-96 bg-gray-900 rounded-xl overflow-hidden shadow-md">
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="object-cover w-full h-full rounded-xl"
+          />
+        </div>
 
-      {/* Control buttons */}
-      <div className="flex space-x-4 mt-4">
-        {/* Mute/Unmute */}
-        <button
-          onClick={toggleMute}
-          className={`p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none`}
-        >
-          {isMuted ? (
-            <FaMicrophoneSlash className="text-red-500 w-6 h-6" />
-          ) : (
-            <FaMicrophone className="text-green-500 w-6 h-6" />
+        {/* Local video (positioned outside the main frame) */}
+        <div className="absolute bottom-4 right-4 w-32 h-32 bg-gray-900 rounded-xl overflow-hidden shadow-md">
+          <video
+            ref={localVideoRef}
+            autoPlay
+            playsInline
+            muted
+            className="object-cover w-full h-full rounded-xl"
+          />
+          {isVideoOff && (
+            <div className="absolute inset-0 bg-gray-800 flex justify-center items-center text-white">
+              Video Off
+            </div>
           )}
-        </button>
+        </div>
 
-        {/* Stop/Resume Video */}
-        <button
-          onClick={toggleVideo}
-          className={`p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none`}
-        >
-          {isVideoOff ? (
-            <FaVideoSlash className="text-red-500 w-6 h-6" />
-          ) : (
-            <FaVideo className="text-green-500 w-6 h-6" />
-          )}
-        </button>
+        {/* Control buttons */}
+        <div className="absolute bottom-4 left-4 bg-gray-800 bg-opacity-80 p-4 rounded-full flex space-x-4 items-center justify-center shadow-lg">
+          {/* Mute/Unmute */}
+          <button
+            onClick={toggleMute}
+            className="p-3 rounded-full bg-white hover:bg-gray-100 text-gray-700 focus:outline-none"
+          >
+            {isMuted ? (
+              <FaMicrophoneSlash className="text-red-600 w-6 h-6" />
+            ) : (
+              <FaMicrophone className="text-green-600 w-6 h-6" />
+            )}
+          </button>
 
-        {/* End Call */}
-        <button
-          onClick={endCall}
-          className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600 focus:outline-none"
-        >
-          <FaPhoneSlash className="w-6 h-6" />
-        </button>
+          {/* Stop/Resume Video */}
+          <button
+            onClick={toggleVideo}
+            className="p-3 rounded-full bg-white hover:bg-gray-100 text-gray-700 focus:outline-none"
+          >
+            {isVideoOff ? (
+              <FaVideoSlash className="text-red-600 w-6 h-6" />
+            ) : (
+              <FaVideo className="text-green-600 w-6 h-6" />
+            )}
+          </button>
 
-        {/* Report Call */}
-        <button
-          onClick={reportCall}
-          className="p-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 focus:outline-none"
-        >
-          <FaExclamationTriangle className="w-6 h-6" />
-        </button>
+          {/* End Call */}
+          <button
+            onClick={endCall}
+            className="p-3 rounded-full bg-red-500 hover:bg-red-600 text-white focus:outline-none"
+          >
+            <FaPhoneSlash className="w-6 h-6" />
+          </button>
+
+          {/* Report Call */}
+          <button
+            onClick={reportCall}
+            className="p-3 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white focus:outline-none"
+          >
+            <FaExclamationTriangle className="w-6 h-6" />
+          </button>
+        </div>
       </div>
     </div>
   );

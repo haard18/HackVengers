@@ -1,4 +1,4 @@
-import React from 'react';
+
 import "../index.css";
 import { useNavigate } from 'react-router-dom';
 // import { nav } from 'framer-motion/client';
@@ -25,7 +25,7 @@ const navigate=useNavigate();
             <a href="/" className="text-gray-300 hover:text-green-400 transition duration-300">Home</a>
             <a href="#" className="text-gray-300 hover:text-green-400 transition duration-300">About</a>
             <a href="/features" className="text-gray-300 hover:text-green-400 transition duration-300">Services</a>
-            <a href="#" className="text-gray-300 hover:text-green-400 transition duration-300">Contact</a>
+            <a href="/videocall" className="text-gray-300 hover:text-green-400 transition duration-300">Contact</a>
           </div>
           
           {/* Login/Signup or Logout */}
