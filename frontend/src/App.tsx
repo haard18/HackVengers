@@ -3,6 +3,7 @@ import Navbar from './Components/Navbar';
 import Landingpage from './Pages/Landingpage';
 import Videocall from './Components/Videocall';
 import Featurespage from './Pages/Featurespage';
+import Connectpage from './Pages/Connectpage';
 // Import other components for routing
 
 function App() {
@@ -12,7 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landingpage />} />
         <Route path="/features" element={<Featurespage/>} />
-
+      <Route path="/connect" element={<Connectpage/>} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>

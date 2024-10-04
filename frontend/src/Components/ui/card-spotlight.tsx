@@ -9,7 +9,7 @@ import { cn } from "../../../lib/utils";
 export const CardSpotlight = ({
   children,
   radius = 350,
-  color = "#262626",
+  color = "#110000",
   className,
   ...props
 }: {
@@ -62,10 +62,10 @@ export const CardSpotlight = ({
             animationSpeed={5}
             containerClassName="bg-transparent absolute inset-0 pointer-events-none"
             colors={[
-              [59, 130, 246],
+              [34,197,94],
               [139, 92, 246],
             ]}
-            dotSize={3}
+            dotSize={7}
           />
         )}
       </motion.div>

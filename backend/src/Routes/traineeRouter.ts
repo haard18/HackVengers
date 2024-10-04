@@ -143,7 +143,7 @@ traineeRouter.post('/createSession', async (req, res) => {
     }
 });
 traineeRouter.post('/rateSession', async (req, res) => {
-    
+
 });
 traineeRouter.post('/getSessions', async (req, res) => {
 
@@ -176,5 +176,38 @@ traineeRouter.post('/getSessions', async (req, res) => {
         res.status(401).json({ error: "Unauthorized" });
     }
 });
-
+traineeRouter.get('/getIdealTrainers',async(req,res)=>{
+    const auth = req.headers['auth-token'];
+    if (!auth || typeof auth !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    try {
+        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET||'secret');
+        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+        if (!traineeId || typeof traineeId !== 'string') {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+        const trainee = await prisma.trainee.findUnique({
+            where: {
+                id: traineeId
+            }
+        });
+        if (!trainee) {
+            res.status(404).json({ error: "Trainee not found" });
+            return;
+        }
+        const trainers = await prisma.trainer.findMany({
+            where: {
+                subjects: {
+                    hasSome: trainee.subjects
+                }
+            }
+        });
+        res.json(trainers);
+    } catch (error) {
+        res.status(401).json({ error: "Unauthorized" });
+    }
+});
 export default traineeRouter;
