@@ -12,3 +12,61 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Trainee {
+  id         String    @id @default(cuid())
+  name       String
+  email      String    @unique
+  password   String
+  phone      String
+  city       String
+  schoolName String
+  class      String
+  branch     String
+  subjects   String[]
+  createdAt  DateTime  @default(now())
+  sessions   Session[]
+  logs       Logs[]
+  token      Int       @default(0) // Assuming it's for tracking some credits
+}
+
+model Trainer {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  phone     String
+  city      String
+  subjects  String[]
+  createdAt DateTime  @default(now())
+  sessions  Session[]
+  logs      Logs[]
+  token     Int       @default(0) // Assuming it's for tracking some credits
+}
+
+model Session {
+  id        String   @id @default(cuid()) // Add unique identifier for the session
+  startTime DateTime // Capture when the session starts
+  endTime   DateTime // Capture when the session ends
+  status    String // Example values: 'pending', 'active', 'completed'
+
+  // Relationships
+  trainee   Trainee? @relation(fields: [traineeId], references: [id])
+  traineeId String?
+
+  trainer   Trainer? @relation(fields: [trainerId], references: [id])
+  trainerId String?
+}
+
+model Logs {
+  id          String   @id @default(cuid()) // Add unique identifier for logs
+  description String // Description of the log event
+  createdAt   DateTime @default(now()) // When the log was created
+
+  // Relationships
+  trainee   Trainee? @relation(fields: [traineeId], references: [id])
+  traineeId String?
+
+  trainer   Trainer? @relation(fields: [trainerId], references: [id])
+  trainerId String?
+}
