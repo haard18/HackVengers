@@ -15,7 +15,6 @@ const Videocall: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
-  const [transcription, setTranscription] = useState<string>(''); // State to hold transcription
   const email = useLocation().state.traineeEmail;
 
   const userType = localStorage.getItem('userType'); // Get userType from local storage
@@ -158,13 +157,6 @@ const Videocall: React.FC = () => {
         >
           Start Call
         </button>
-        <button
-          disabled={!transcription}
-          className={`ml-4 p-2 bg-orange-500 text-white rounded-lg shadow-md 
-                      hover:bg-orange-600 focus:outline-none disabled:bg-gray-400`}
-        >
-          Download Transcription
-        </button>
         {userType === 'trainer' && ( // Conditionally render the button for trainee
           <button
             onClick={sendEmail}
@@ -208,13 +200,6 @@ const Videocall: React.FC = () => {
           <FaPhoneSlash className="w-6 h-6" />
         </button>
       </div>
-
-      {transcription && (
-        <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-2">Transcription:</h3>
-          <p className="text-sm whitespace-pre-line">{transcription}</p>
-        </div>
-      )}
     </div>
   );
 };
