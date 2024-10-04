@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Authentication = () => {
-    console.log("Authentication");
-  const [isLogin, setIsLogin] = useState(true); // State to toggle between login and signup
-  const [userType, setUserType] = useState('trainer'); // State to select between trainer and trainee
+  const [isLogin, setIsLogin] = useState(true);
+  const [userType, setUserType] = useState('trainer');
+  const navigate=useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -17,17 +19,44 @@ const Authentication = () => {
     class: '',
     branch: ''
   });
-  const [loading, setLoading] = useState(false); // To handle request state
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+    // Reset the form when toggling between login and signup
+    setFormData({
+      name: '',
+      phone: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      qualification: '',
+      city: '',
+      subjects: '',
+      schoolName: '',
+      class: '',
+      branch: ''
+    });
   };
 
   const handleUserTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setUserType(e.target.value);
+    // Reset fields that are not applicable for the selected user type
+    if (e.target.value === 'trainee') {
+      setFormData((prevData) => ({
+        ...prevData,
+        qualification: '',
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        schoolName: '',
+        class: '',
+        branch: '',
+      }));
+    }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -37,59 +66,62 @@ const Authentication = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    const url = `http://localhost:3000/api/${userType}/${isLogin ? 'login' : 'signup'}`;
-    
+
+    const url = `http://localhost:3000/api/${userType}/${isLogin ? 'login' : 'signUp'}`;
+
+    const subjectsArray = formData.subjects.split(',').map(subject => subject.trim());
+
     const requestData = {
       name: formData.name || '',
       email: formData.email,
       password: formData.password,
       phone: formData.phone || '',
+      city: formData.city || '',
       ...(userType === 'trainer' && {
-        city: formData.city || '',
         qualification: formData.qualification || '',
-        subjects: formData.subjects || [], // Should be an array for trainers
+        subjects: subjectsArray,
       }),
       ...(userType === 'trainee' && {
         schoolName: formData.schoolName || '',
         class: formData.class || '',
         branch: formData.branch || '',
-        subjects: formData.subjects || [], // Should be an array for trainees as well
+        subjects: subjectsArray,
       })
     };
-  
+
     try {
-      const response = await fetch(url, {
-        method: 'POST',
+      const response = await axios.post(url, requestData, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestData),
       });
-      
-      const result = await response.json();
-      if (response.ok) {
-        console.log('Success:', result);
+
+      // Assuming the token is returned in response.data.token
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token); 
+        navigate('/features');
+        // Store the token in localStorage
+        console.log('Success:', response.data);
       } else {
-        console.error('Error:', result);
+        console.error('Error:', response.data);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
     }
   };
-  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-8">
+      <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-3xl p-8">
         <h2 className="text-3xl font-semibold text-center mb-8">
           {isLogin ? 'Login' : 'Signup'}
         </h2>
 
-        {!isLogin && (
+        {/* Toggle for user type during login */}
+        {isLogin && (
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1" htmlFor="userType">
-              I am a
+              Login as
             </label>
             <select
               id="userType"
@@ -103,9 +135,10 @@ const Authentication = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {!isLogin && (
             <>
+              {/* Signup fields */}
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1" htmlFor="name">
                   Name
@@ -134,48 +167,34 @@ const Authentication = () => {
               </div>
 
               {userType === 'trainer' && (
-                <>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1" htmlFor="qualification">
-                      Qualification
-                    </label>
-                    <input
-                      type="text"
-                      id="qualification"
-                      value={formData.qualification}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Your qualification"
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1" htmlFor="city">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Your city"
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1" htmlFor="subjects">
-                      Subjects
-                    </label>
-                    <input
-                      type="text"
-                      id="subjects"
-                      value={formData.subjects}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Enter subjects (comma-separated)"
-                    />
-                  </div>
-                </>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1" htmlFor="qualification">
+                    Qualification
+                  </label>
+                  <input
+                    type="text"
+                    id="qualification"
+                    value={formData.qualification}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Your qualification"
+                  />
+                </div>
               )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1" htmlFor="city">
+                  City
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Your city"
+                />
+              </div>
 
               {userType === 'trainee' && (
                 <>
@@ -220,10 +239,24 @@ const Authentication = () => {
                   </div>
                 </>
               )}
+
+              <div className="mb-4 col-span-2">
+                <label className="block text-sm font-medium mb-1" htmlFor="subjects">
+                  Subjects
+                </label>
+                <input
+                  type="text"
+                  id="subjects"
+                  value={formData.subjects}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Comma separated subjects"
+                />
+              </div>
             </>
           )}
 
-          <div className="mb-4">
+          <div className="mb-4 col-span-2">
             <label className="block text-sm font-medium mb-1" htmlFor="email">
               Email
             </label>
@@ -233,11 +266,12 @@ const Authentication = () => {
               value={formData.email}
               onChange={handleInputChange}
               className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your email"
+              placeholder="Your email"
+              required
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 col-span-2">
             <label className="block text-sm font-medium mb-1" htmlFor="password">
               Password
             </label>
@@ -247,13 +281,14 @@ const Authentication = () => {
               value={formData.password}
               onChange={handleInputChange}
               className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your password"
+              placeholder="Your password"
+              required
             />
           </div>
 
           {!isLogin && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1" htmlFor="confirm-password">
+            <div className="mb-4 col-span-2">
+              <label className="block text-sm font-medium mb-1" htmlFor="confirmPassword">
                 Confirm Password
               </label>
               <input
@@ -263,28 +298,30 @@ const Authentication = () => {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Confirm your password"
+                required
               />
             </div>
           )}
 
-          <button
-            type="submit"
-            className={`w-full py-2 rounded bg-green-500 hover:bg-green-600 text-white font-semibold transition duration-300 ${loading ? 'opacity-50' : ''}`}
-            disabled={loading}
-          >
-            {loading ? 'Processing...' : isLogin ? 'Login' : 'Signup'}
-          </button>
-        </form>
+          <div className="mb-4 col-span-2">
+            <button
+              type="submit"
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded"
+            >
+              {isLogin ? 'Login' : 'Signup'}
+            </button>
+          </div>
 
-        <p className="text-center mt-4">
-          {isLogin ? "Don't have an account?" : 'Already have an account?'}
-          <button
-            onClick={toggleAuthMode}
-            className="text-green-400 hover:text-green-500 font-medium ml-2"
-          >
-            {isLogin ? 'Signup' : 'Login'}
-          </button>
-        </p>
+          <div className="mb-4 col-span-2 text-center">
+            <button
+              type="button"
+              onClick={toggleAuthMode}
+              className="text-gray-400 hover:text-white focus:outline-none"
+            >
+              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
