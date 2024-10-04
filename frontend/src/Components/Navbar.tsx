@@ -1,16 +1,16 @@
 import React from 'react';
 import "../index.css";
+import { useNavigate } from 'react-router-dom';
+// import { nav } from 'framer-motion/client';
 // import { BackgroundBeams } from "./../Components/ui/background-beams"; // Adjust the import path as necessary
 
 const Navbar = () => {
   const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
-
-  const handleLogout = () => {
+const navigate=useNavigate();
+  const handleLogout= () => {
     localStorage.removeItem("token");
-    window.location.reload(); // Refresh the page to reflect the changes
+    navigate('/auth')
   };
-
   return (
     <>
       <nav className="bg-black p-4 relative overflow-hidden">
@@ -30,12 +30,12 @@ const Navbar = () => {
           
           {/* Login/Signup or Logout */}
           <div className="space-x-4">
-            {isLoggedIn ? (
+            {token ? (
               <button onClick={handleLogout} className="text-gray-300 hover:text-green-400 transition duration-300">Logout</button>
             ) : (
               <>
-                <a href="#" className="text-gray-300 hover:text-green-400 transition duration-300">Login</a>
-                <a href="#" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300">Signup</a>
+                <a href="/auth" className="text-gray-300 hover:text-green-400 transition duration-300">Login</a>
+                <a href="/auth" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300">Signup</a>
               </>
             )}
           </div>

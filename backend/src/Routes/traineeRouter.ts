@@ -18,10 +18,12 @@ const signUpSchema = z.object({
     branch: z.string(),
     subjects: z.array(z.string())
 });
+// Assuming you are using zod
 const sessionSchema = z.object({
-    startTime: z.string().transform((val) => new Date(val)), // Accepts string and converts to Date
-    endTime: z.string().transform((val) => new Date(val)),   // Accepts string and converts to Date
+    startTime: z.string(), // Keep it as a string for now
+    endTime: z.string(),
     trainerId: z.string(),
+    topic: z.string(),
 });
 
 // Schema for login validation
@@ -102,46 +104,53 @@ traineeRouter.post('/login', async (req, res) => {
 });
 traineeRouter.post('/createSession', async (req, res) => {
     try {
-        const { success } = sessionSchema.safeParse(req.body);
+        const { success, error } = sessionSchema.safeParse(req.body);
         if (!success) {
+            console.error('Validation errors:', error.errors); // Log the validation errors
             res.status(400).json({ error: "Invalid data" });
             return;
         }
-        const { startTime, endTime, trainerId, topic } = req.body
-        console.log(startTime, endTime, trainerId)
-        const auth = req.headers['auth-token']
 
+        // Parse dates after validation
+        const startTime = new Date(req.body.startTime);
+        const endTime = new Date(req.body.endTime);
+        const { trainerId, topic } = req.body;
+
+        console.log('Parsed Values:', { startTime, endTime, trainerId, topic }); // Log parsed values
+
+        const auth = req.headers['auth-token'];
         if (!auth || typeof auth !== 'string') {
             res.status(401).json({ error: "Unauthorized" });
             return;
         }
 
-        // Verify the token to get the trainee's ID
         const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || "secret");
-        const trainee = (decodedToken as jwt.JwtPayload).id as string; // Assuming the token contains an 'id' field
+        const trainee = (decodedToken as jwt.JwtPayload).id as string;
+
         const trainer = await prisma.trainer.findUnique({ where: { id: trainerId } });
         if (!trainer) {
             res.status(404).json({ error: "Trainer not found" });
             return;
         }
 
-        // Create session
         const session = await prisma.session.create({
             data: {
                 startTime,
                 endTime,
                 topic,
-                status: 'Pending', // Initial status
-                trainee: { connect: { id: trainee } }, // Assuming user ID is available
+                status: 'Pending',
+                trainee: { connect: { id: trainee } },
                 trainer: { connect: { id: trainerId } }
             }
         });
 
         res.json(session);
     } catch (error) {
+        console.error('Error:', error); // Log error details
         res.status(400).json({ error: "Invalid data" });
     }
 });
+
 traineeRouter.post('/rateSession', async (req, res) => {
 
 });
@@ -176,14 +185,14 @@ traineeRouter.post('/getSessions', async (req, res) => {
         res.status(401).json({ error: "Unauthorized" });
     }
 });
-traineeRouter.get('/getIdealTrainers',async(req,res)=>{
+traineeRouter.get('/getIdealTrainers', async (req, res) => {
     const auth = req.headers['auth-token'];
     if (!auth || typeof auth !== 'string') {
         res.status(401).json({ error: "Unauthorized" });
         return;
     }
     try {
-        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET||'secret');
+        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || 'secret');
         const traineeId = (decodedToken as jwt.JwtPayload).id as string;
         if (!traineeId || typeof traineeId !== 'string') {
             res.status(401).json({ error: "Unauthorized" });
