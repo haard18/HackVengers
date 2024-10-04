@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
+import RecordRTC from 'recordrtc';
 import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaExclamationTriangle, FaVideo, FaVideoSlash, FaClipboard } from 'react-icons/fa';
 
 const Videocall: React.FC = () => {
@@ -9,9 +10,9 @@ const Videocall: React.FC = () => {
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peer = useRef<Peer | null>(null);
   const [call, setCall] = useState<MediaConnection | null>(null);
-  // const [call, setCall] = useState<MediaConnection | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
+  const [recorder, setRecorder] = useState<RecordRTC | null>(null);
 
   useEffect(() => {
     peer.current = new Peer();
@@ -30,6 +31,14 @@ const Videocall: React.FC = () => {
           incomingCall.on('stream', (remoteStream) => {
             remoteVideoRef.current!.srcObject = remoteStream;
           });
+
+          // Start recording the audio
+          const audioRecorder =new RecordRTC(localStream, {
+            type: 'audio',
+            mimeType: 'audio/webm', // Use appropriate MIME type
+          });
+          audioRecorder.startRecording();
+          setRecorder(audioRecorder);
         });
     });
 
@@ -52,42 +61,89 @@ const Videocall: React.FC = () => {
           outgoingCall.on('stream', (remoteStream) => {
             remoteVideoRef.current!.srcObject = remoteStream;
           });
+
+          // Start recording the audio
+          const audioRecorder =new RecordRTC(localStream, {
+            type: 'audio',
+            mimeType: 'audio/webm',
+          });
+          audioRecorder.startRecording();
+          setRecorder(audioRecorder);
         });
     }
-  };
-
-  const toggleMute = () => {
-    const localStream = localVideoRef.current!.srcObject as MediaStream;
-    localStream.getAudioTracks().forEach((track) => {
-      track.enabled = !track.enabled;
-    });
-    setIsMuted(!isMuted);
-  };
-
-  const toggleVideo = () => {
-    const localStream = localVideoRef.current!.srcObject as MediaStream;
-    localStream.getVideoTracks().forEach((track) => {
-      track.enabled = !track.enabled;
-    });
-    setIsVideoOff(!isVideoOff);
   };
 
   const endCall = () => {
     if (call) {
       call.close();
       setCall(null);
+
+      // Stop recording and send audio to backend
+      if (recorder) {
+        recorder.stopRecording(() => {
+          const audioBlob = recorder.getBlob();
+          sendAudioToBackend(audioBlob); // Call the function to send audio to backend
+        });
+        setRecorder(null);
+      }
+    }
+  };
+
+  const sendAudioToBackend = async (audioBlob: Blob) => {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'call-recording.webm'); // Change to 'file' to match backend
+
+    // Include any other metadata as needed
+    formData.append('peerId', peerId || ''); // Add peerId
+    formData.append('remoteId', remoteId); // Add remoteId
+    formData.append('timestamp', new Date().toISOString()); // Current timestamp
+    formData.append('sessionId', 'your-session-id'); // Replace with actual session ID
+
+    try {
+      const response = await fetch('/uploadRecording', { // Match the backend route
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Audio sent successfully:', data);
+      } else {
+        console.error('Error sending audio:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
+  };
+
+  const toggleMute = () => {
+    if (localVideoRef.current && localVideoRef.current.srcObject) {
+      const stream = localVideoRef.current.srcObject as MediaStream;
+      stream.getAudioTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const toggleVideo = () => {
+    if (localVideoRef.current && localVideoRef.current.srcObject) {
+      const stream = localVideoRef.current.srcObject as MediaStream;
+      stream.getVideoTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsVideoOff(!isVideoOff);
     }
   };
 
   const reportCall = () => {
-    alert('Reporting the call to the system admin.');
+    // Implement report call functionality
   };
 
   const copyToClipboard = () => {
     if (peerId) {
-      navigator.clipboard.writeText(peerId)
-        .then(() => alert('Peer ID copied to clipboard!'))
-        .catch(err => console.error('Failed to copy: ', err));
+      navigator.clipboard.writeText(peerId);
+      alert('Peer ID copied to clipboard');
     }
   };
 
@@ -121,7 +177,6 @@ const Videocall: React.FC = () => {
       </div>
 
       <div className="relative w-full flex justify-center items-center">
-        {/* Remote video (big screen) */}
         <div className="w-full h-96 bg-gray-900 rounded-xl overflow-hidden shadow-md">
           <video
             ref={remoteVideoRef}
@@ -131,7 +186,6 @@ const Videocall: React.FC = () => {
           />
         </div>
 
-        {/* Local video (positioned outside the main frame) */}
         <div className="absolute bottom-4 right-4 w-32 h-32 bg-gray-900 rounded-xl overflow-hidden shadow-md">
           <video
             ref={localVideoRef}
@@ -147,9 +201,7 @@ const Videocall: React.FC = () => {
           )}
         </div>
 
-        {/* Control buttons */}
         <div className="absolute bottom-4 left-4 bg-gray-800 bg-opacity-80 p-4 rounded-full flex space-x-4 items-center justify-center shadow-lg">
-          {/* Mute/Unmute */}
           <button
             onClick={toggleMute}
             className="p-3 rounded-full bg-white hover:bg-gray-100 text-gray-700 focus:outline-none"
@@ -161,7 +213,6 @@ const Videocall: React.FC = () => {
             )}
           </button>
 
-          {/* Stop/Resume Video */}
           <button
             onClick={toggleVideo}
             className="p-3 rounded-full bg-white hover:bg-gray-100 text-gray-700 focus:outline-none"
@@ -173,7 +224,6 @@ const Videocall: React.FC = () => {
             )}
           </button>
 
-          {/* End Call */}
           <button
             onClick={endCall}
             className="p-3 rounded-full bg-red-500 hover:bg-red-600 text-white focus:outline-none"
@@ -181,7 +231,6 @@ const Videocall: React.FC = () => {
             <FaPhoneSlash className="w-6 h-6" />
           </button>
 
-          {/* Report Call */}
           <button
             onClick={reportCall}
             className="p-3 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white focus:outline-none"
