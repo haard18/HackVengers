@@ -1,12 +1,14 @@
 import express, { Router } from 'express';
 import { configDotenv } from 'dotenv';
-const PhysicsURL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLxn-W1Py3Td00ZeiM759oV60BlTmmm4rUZCY4_YElxXA6agfUnjVj-tPOsHFelsYjjGg&usqp=CAU";
-const MathsURL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCnAVRcmamSxvXodC8jxVYaclFCBci7EVyqA&sJ"
-const BiologyURL="https://static.vecteezy.com/system/resources/previews/026/325/679/original/biology-icon-symbol-design-illustration-vector.jpg"
-const ChemistryURL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwicJ2vRsRIAAp8eY1XLztqqEO6L7kcyVGKA&s";
+const PhysicsURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLxn-W1Py3Td00ZeiM759oV60BlTmmm4rUZCY4_YElxXA6agfUnjVj-tPOsHFelsYjjGg&usqp=CAU";
+const MathsURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCnAVRcmamSxvXodC8jxVYaclFCBci7EVyqA&sJ"
+const BiologyURL = "https://static.vecteezy.com/system/resources/previews/026/325/679/original/biology-icon-symbol-design-illustration-vector.jpg"
+const ChemistryURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwicJ2vRsRIAAp8eY1XLztqqEO6L7kcyVGKA&s";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-// import { PrismaClient } from '@prisma/client';
+import nodemailer from 'nodemailer';
+
+
 import prisma from '../dbconfig';
 import { z } from 'zod';
 const trainerRouter: Router = Router();
@@ -24,12 +26,56 @@ const loginSchema = z.object({
     email: z.string().email(),
     password: z.string()
 });
+const sendMail = async (email: string, subject: string, text: string,from:string) => {
+
+    
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: 'haardsolanki.itm@gmail.com',
+            pass: 'oupl qleh qnee pucl'
+        },
+    });
+
+
+    const mailOptions = {
+        from: `EduHacks ${from}`,
+        to: email,
+        subJect: subject,
+        text: text
+    }
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log("Email sent");
+    } catch (error) {
+        console.log("Error in sending email", error);
+    }
+}
+trainerRouter.post('/sendMail', async (req, res) => {
+    const { email, subject, text } = req.body;
+    const token=req.headers['auth-token'];
+    if (!token || typeof token !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const trainerId = (decodedToken as jwt.JwtPayload).id as string;
+    if (!trainerId || typeof trainerId !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    sendMail(email, subject, text,trainerId);
+    res.json({ message: "Mail sent" });
+
+})
 trainerRouter.post('/signUp', async (req, res) => {
     try {
         const { name, email, password, phone, qualification, city, subjects } = signUpSchema.parse(req.body);
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        
+
         // Determine the image URL based on the subjects array
         let imageUrl = '';
 
@@ -132,19 +178,19 @@ trainerRouter.get('/getMySessions', async (req, res) => {
 
         const sessions = await prisma.session.findMany({
             where: {
-            trainerId: trainerId
+                trainerId: trainerId
             },
             include: {
-            trainee: {
-                select: {
-                name: true,
-                email: true,
-                phone: true
+                trainee: {
+                    select: {
+                        name: true,
+                        email: true,
+                        phone: true
+                    }
                 }
             }
-            }
         });
-        
+
         res.json(sessions);
     } catch (error) {
         // Handle any error that occurs during token verification or database query
