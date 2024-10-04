@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS
+import 'react-datepicker/dist/react-datepicker.css';
+import LoadingScreen from '../Components/Loading Screen'; // Ensure correct import path
 
 const Connectpage = () => {
     type IdealTrainer = {
@@ -16,11 +17,12 @@ const Connectpage = () => {
     const [idealTrainers, setIdealTrainers] = useState<IdealTrainer[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [sessionDetails, setSessionDetails] = useState({
-        startTime: new Date(), // Default to current date
+        startTime: new Date(),
         endTime: new Date(),
         topic: '',
         trainerId: ''
     });
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const auth = localStorage.getItem('token');
@@ -39,6 +41,10 @@ const Connectpage = () => {
                 setIdealTrainers(data);
             } catch (error) {
                 console.error('Error fetching ideal trainers:', error);
+            } finally {
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 4000);
             }
         };
 
@@ -94,78 +100,91 @@ const Connectpage = () => {
         }
     };
 
+    if (isLoading) {
+        return (
+            <LoadingScreen 
+                sentence1="Loading your ideal trainers..."
+                sentence2="Please wait while we fetch the information."
+                sentence3="Connecting you with the best trainers."
+                sentence4="Almost there..."
+            />
+        ); // Show loading screen while loading
+    }
+
     return (
-        <div className="bg-black text-green-500 h-full p-8">
-            <h2 className=" text-2xl mb-6">Ideal Trainers</h2>
+        <div className="bg-gray-900 text-green-500 h-full p-8">
+            <h2 className="text-4xl font-extrabold mb-6 text-center">Find Your Ideal Trainers</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {idealTrainers.map((trainer) => (
-                    <div key={trainer.id} className="bg-gray-100 p-6 rounded-lg shadow-lg">
+                    <div key={trainer.id} className="bg-gray-800 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-gray-700 hover:shadow-2xl">
                         <img
                             src={trainer.iconurl}
                             alt={`${trainer.name}'s icon`}
-                            className="w-full h-48 object-cover mb-4 rounded-lg"
+                            className="w-24 h-24 object-cover mb-4 rounded-full mx-auto shadow-md"
                         />
-                        <h3 className="text-lg font-bold mb-2">{trainer.name}</h3>
-                        <p className="text-gray-700 mb-2">Qualification: {trainer.qualification}</p>
-                        <p className="text-gray-700 mb-2">City: {trainer.city}</p>
-                        <p className="text-gray-700 mb-4">Subjects: {trainer.subjects.join(', ')}</p>
-                        <button
-                            className="bg-blue-500 text-white rounded-lg px-4 py-2"
-                            onClick={() => handleSessionRequest(trainer.id)}
-                        >
-                            Request Session
-                        </button>
+                        <h3 className="text-2xl font-semibold mb-2 text-center">{trainer.name}</h3>
+                        <p className="text-gray-400 mb-2 text-center">Qualification: {trainer.qualification}</p>
+                        <p className="text-gray-400 mb-2 text-center">City: {trainer.city}</p>
+                        <p className="text-gray-400 mb-4 text-center">Subjects: {trainer.subjects.join(', ')}</p>
+                        <div className="flex justify-center">
+                            <button
+                                className="bg-green-600 hover:bg-green-500 text-white rounded-lg px-6 py-2 transition duration-300"
+                                onClick={() => handleSessionRequest(trainer.id)}
+                            >
+                                Request Session
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
 
             {/* Session Request Dialog Box */}
             {isDialogOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 className="text-xl mb-4">Request Session with Trainer</h3>
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+                        <h3 className="text-2xl font-semibold mb-4 text-center text-white">Request Session with Trainer</h3>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
-                                <label className="block mb-2">Start Time</label>
+                                <label className="block mb-2 text-gray-300">Start Time</label>
                                 <DatePicker
                                     selected={sessionDetails.startTime}
                                     onChange={(date: Date | null) => date && handleDateChange(date, 'startTime')}
                                     showTimeSelect
                                     dateFormat="Pp"
-                                    className="border rounded-lg p-2 w-full"
+                                    className="border border-gray-600 rounded-lg p-2 w-full bg-gray-700 text-white focus:ring-2 focus:ring-green-500"
                                     required
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block mb-2">End Time</label>
+                                <label className="block mb-2 text-gray-300">End Time</label>
                                 <DatePicker
                                     selected={sessionDetails.endTime}
                                     onChange={(date) => handleDateChange(date as Date, 'endTime')}
                                     showTimeSelect
                                     dateFormat="Pp"
-                                    className="border rounded-lg p-2 w-full"
+                                    className="border border-gray-600 rounded-lg p-2 w-full bg-gray-700 text-white focus:ring-2 focus:ring-green-500"
                                     required
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block mb-2">Topic</label>
+                                <label className="block mb-2 text-gray-300">Topic</label>
                                 <textarea
                                     name="topic"
                                     value={sessionDetails.topic}
                                     onChange={handleInputChange}
-                                    className="border rounded-lg p-2 w-full"
+                                    className="border border-gray-600 rounded-lg p-2 w-full bg-gray-700 text-white focus:ring-2 focus:ring-green-500"
                                     required
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="bg-blue-500 text-white rounded-lg px-4 py-2"
+                                className="bg-green-600 hover:bg-green-500 text-white rounded-lg px-4 py-2 transition duration-300 w-full"
                             >
                                 Submit Request
                             </button>
                             <button
                                 type="button"
-                                className="bg-gray-500 text-white rounded-lg px-4 py-2 ml-2"
+                                className="bg-red-600 hover:bg-red-500 text-white rounded-lg px-4 py-2 transition duration-300 w-full mt-2"
                                 onClick={() => setIsDialogOpen(false)}
                             >
                                 Cancel
