@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
 import RecordRTC from 'recordrtc';
 import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaVideo, FaVideoSlash, FaClipboard } from 'react-icons/fa';
-import { saveAs } from 'file-saver';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
@@ -57,8 +56,7 @@ const Videocall: React.FC = () => {
       if (recorder) {
         recorder.stopRecording(() => {
           const audioBlob = recorder.getBlob();
-          saveAudioLocally(audioBlob); // Save audio locally
-          uploadToAssemblyAI(audioBlob); // Upload to AssemblyAI for transcription
+          // Send the entire file to OpenAI
         });
         setRecorder(null);
       }
@@ -77,75 +75,19 @@ const Videocall: React.FC = () => {
             remoteVideoRef.current!.srcObject = remoteStream;
           });
 
-            const audioRecorder = new RecordRTC(localStream, {
+          const audioRecorder = new RecordRTC(localStream, {
             type: 'audio',
             mimeType: 'audio/wav',
-            });
+          });
           audioRecorder.startRecording();
           setRecorder(audioRecorder);
         });
     }
   };
 
-  const uploadToAssemblyAI = async (audioBlob: Blob) => {
-    const formData = new FormData();
-    formData.append('file', audioBlob);
 
-    // Upload audio file to AssemblyAI
-    const uploadResponse = await fetch('https://api.assemblyai.com/v2/upload', {
-      method: 'POST',
-      headers: {
-        authorization: '5966dd35db2649ac93f5720effd7df77', // Replace with your AssemblyAI API key
-      },
-      body: formData,
-    });
 
-    const { upload_url } = await uploadResponse.json();
 
-    // Start transcription
-    const transcriptResponse = await fetch('https://api.assemblyai.com/v2/transcript', {
-      method: 'POST',
-      headers: {
-        authorization: '5966dd35db2649ac93f5720effd7df77', // Replace with your AssemblyAI API key
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ audio_url: upload_url }),
-    });
-
-    const { id } = await transcriptResponse.json();
-
-    // Polling for transcription result
-    const checkTranscript = async () => {
-      const resultResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-        headers: {
-          authorization: '5966dd35db2649ac93f5720effd7df77', // Replace with your AssemblyAI API key
-        },
-      });
-
-      const result = await resultResponse.json();
-
-      if (result.status === 'completed') {
-        setTranscription(result.text); // Update transcription state
-      } else if (result.status === 'failed') {
-        console.error('Transcription failed:', result.error);
-      } else {
-        setTimeout(checkTranscript, 5000); // Check again after 5 seconds
-      }
-    };
-
-    checkTranscript(); // Start checking the transcription result
-  };
-
-  const saveAudioLocally = (audioBlob: Blob) => {
-    const fileName = `audio-${Date.now()}.webm`; // Create a unique file name
-    saveAs(audioBlob, fileName); // Use FileSaver to save the file
-  };
-
-  const saveTranscriptionLocally = () => {
-    const fileName = `transcription-${Date.now()}.txt`; // Create a unique file name for transcription
-    const blob = new Blob([transcription], { type: 'text/plain' }); // Create a text blob
-    saveAs(blob, fileName); // Use FileSaver to save the transcription
-  };
 
   const toggleMute = () => {
     if (localVideoRef.current && localVideoRef.current.srcObject) {
@@ -202,7 +144,7 @@ const Videocall: React.FC = () => {
           Start Call
         </button>
         <button
-          onClick={saveTranscriptionLocally}
+          // onClick={saveTranscriptionLocally}
           disabled={!transcription}
           className={`ml-4 p-2 bg-orange-500 text-white rounded-lg shadow-md 
                       hover:bg-orange-600 focus:outline-none disabled:bg-gray-400`}
@@ -243,8 +185,16 @@ const Videocall: React.FC = () => {
           <FaPhoneSlash className="w-6 h-6" />
         </button>
       </div>
+
+      {transcription && (
+        <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-2">Transcription:</h3>
+          <p className="text-sm whitespace-pre-line">{transcription}</p>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Videocall;
+
