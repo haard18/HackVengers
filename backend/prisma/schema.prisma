@@ -27,35 +27,50 @@ model Trainee {
   createdAt  DateTime  @default(now())
   sessions   Session[]
   logs       Logs[]
-  token      Int       @default(0) // Assuming it's for tracking some credits
+  ratings    Ratings[] // Ratings given by this trainee
+  token      Int       @default(0)
 }
 
 model Trainer {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
   phone     String
   city      String
   subjects  String[]
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
   sessions  Session[]
   logs      Logs[]
-  token     Int       @default(0) // Assuming it's for tracking some credits
+  ratings   Ratings[] // Ratings received by this trainer
+  token     Int      @default(0)
 }
 
 model Session {
-  id        String   @id @default(cuid()) // Add unique identifier for the session
-  startTime DateTime // Capture when the session starts
-  endTime   DateTime // Capture when the session ends
-  status    String // Example values: 'pending', 'active', 'completed'
+  id        String   @id @default(cuid())
+  startTime DateTime
+  endTime   DateTime
+  status    String
 
-  // Relationships
   trainee   Trainee? @relation(fields: [traineeId], references: [id])
   traineeId String?
 
   trainer   Trainer? @relation(fields: [trainerId], references: [id])
   trainerId String?
+}
+
+model Ratings {
+  id        String   @id @default(cuid()) // Unique ID for the rating
+  rating    Int      // Rating out of 5
+  comment   String?  // Optional comment provided by trainee
+  createdAt DateTime @default(now())
+
+  // Relations
+  trainee   Trainee  @relation(fields: [traineeId], references: [id])
+  traineeId String   // ID of the trainee who gave the rating
+
+  trainer   Trainer  @relation(fields: [trainerId], references: [id])
+  trainerId String   // ID of the trainer being rated
 }
 
 model Logs {
