@@ -148,5 +148,9 @@ trainerRouter.post('/acceptSession/:sessionId', async (req, res) => {
         res.status(400).json({ error: "Invalid data" });
     }
 });
+trainerRouter.get('/getAllTrainers', async (req, res) => {
+    const trainers = await prisma.trainer.findMany();
+    res.json(trainers);
+});
 
 export default trainerRouter

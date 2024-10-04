@@ -51,7 +51,7 @@ model Session {
   startTime DateTime
   endTime   DateTime
   status    String
-
+  topic    String
   trainee   Trainee? @relation(fields: [traineeId], references: [id])
   traineeId String?
 

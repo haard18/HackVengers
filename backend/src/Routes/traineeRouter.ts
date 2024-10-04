@@ -107,7 +107,7 @@ traineeRouter.post('/createSession', async (req, res) => {
             res.status(400).json({error: "Invalid data"});
             return;
         }
-        const { startTime, endTime, trainerId } = req.body
+        const { startTime, endTime, trainerId ,topic} = req.body
         console.log(startTime, endTime, trainerId)
         const auth=req.headers['auth-token']
 
@@ -130,6 +130,7 @@ traineeRouter.post('/createSession', async (req, res) => {
             data: {
                 startTime,
                 endTime,
+                topic,
                 status: 'Pending', // Initial status
                 trainee: { connect: { id: trainee } }, // Assuming user ID is available
                 trainer: { connect: { id: trainerId } }
