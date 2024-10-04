@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Peer from 'peerjs';
+import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaExclamationTriangle, FaVideo, FaVideoSlash } from 'react-icons/fa';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
@@ -8,23 +9,28 @@ const Videocall: React.FC = () => {
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peer = useRef<Peer | null>(null);
   const [call, setCall] = useState<Peer.MediaConnection | null>(null);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
 
   useEffect(() => {
     // Initialize PeerJS
-    peer.current = new Peer({ key: 'peerjs' }); // or your PeerJS server
+    peer.current = new Peer(); // No key is needed for peerjs unless using a specific server
 
     peer.current.on('open', (id) => {
       setPeerId(id);
     });
 
     peer.current.on('call', (incomingCall) => {
-      // Answer the call
-      incomingCall.answer(localVideoRef.current!.srcObject as MediaStream);
-      setCall(incomingCall);
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((localStream) => {
+          localVideoRef.current!.srcObject = localStream;
+          incomingCall.answer(localStream);
+          setCall(incomingCall);
 
-      incomingCall.on('stream', (remoteStream) => {
-        remoteVideoRef.current!.srcObject = remoteStream;
-      });
+          incomingCall.on('stream', (remoteStream) => {
+            remoteVideoRef.current!.srcObject = remoteStream;
+          });
+        });
     });
 
     return () => {
@@ -39,7 +45,8 @@ const Videocall: React.FC = () => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((localStream) => {
           localVideoRef.current!.srcObject = localStream;
-          const outgoingCall = peer.current.call(remoteId, localStream);
+
+          const outgoingCall = peer.current!.call(remoteId, localStream);
           setCall(outgoingCall);
 
           outgoingCall.on('stream', (remoteStream) => {
@@ -47,6 +54,33 @@ const Videocall: React.FC = () => {
           });
         });
     }
+  };
+
+  const toggleMute = () => {
+    const localStream = localVideoRef.current!.srcObject as MediaStream;
+    localStream.getAudioTracks().forEach((track) => {
+      track.enabled = !track.enabled;
+    });
+    setIsMuted(!isMuted);
+  };
+
+  const toggleVideo = () => {
+    const localStream = localVideoRef.current!.srcObject as MediaStream;
+    localStream.getVideoTracks().forEach((track) => {
+      track.enabled = !track.enabled;
+    });
+    setIsVideoOff(!isVideoOff);
+  };
+
+  const endCall = () => {
+    if (call) {
+      call.close();
+      setCall(null);
+    }
+  };
+
+  const reportCall = () => {
+    alert('Reporting the call to the system admin.');
   };
 
   return (
@@ -70,7 +104,9 @@ const Videocall: React.FC = () => {
           Start Call
         </button>
       </div>
+
       <div className="flex space-x-4">
+        {/* Local video */}
         <video
           ref={localVideoRef}
           autoPlay
@@ -78,12 +114,56 @@ const Videocall: React.FC = () => {
           muted
           className="w-64 h-auto border border-gray-300 rounded"
         />
+        {/* Remote video */}
         <video
           ref={remoteVideoRef}
           autoPlay
           playsInline
           className="w-64 h-auto border border-gray-300 rounded"
         />
+      </div>
+
+      {/* Control buttons */}
+      <div className="flex space-x-4 mt-4">
+        {/* Mute/Unmute */}
+        <button
+          onClick={toggleMute}
+          className={`p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none`}
+        >
+          {isMuted ? (
+            <FaMicrophoneSlash className="text-red-500 w-6 h-6" />
+          ) : (
+            <FaMicrophone className="text-green-500 w-6 h-6" />
+          )}
+        </button>
+
+        {/* Stop/Resume Video */}
+        <button
+          onClick={toggleVideo}
+          className={`p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none`}
+        >
+          {isVideoOff ? (
+            <FaVideoSlash className="text-red-500 w-6 h-6" />
+          ) : (
+            <FaVideo className="text-green-500 w-6 h-6" />
+          )}
+        </button>
+
+        {/* End Call */}
+        <button
+          onClick={endCall}
+          className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600 focus:outline-none"
+        >
+          <FaPhoneSlash className="w-6 h-6" />
+        </button>
+
+        {/* Report Call */}
+        <button
+          onClick={reportCall}
+          className="p-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 focus:outline-none"
+        >
+          <FaExclamationTriangle className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );

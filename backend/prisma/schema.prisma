@@ -55,9 +55,11 @@ model Session {
   topic     String
   trainee   Trainee? @relation(fields: [traineeId], references: [id])
   traineeId String?
-
+  
   trainer   Trainer? @relation(fields: [trainerId], references: [id])
   trainerId String?
+
+  ratings   Ratings[] // Ratings for this session
 }
 
 model Ratings {
@@ -65,7 +67,8 @@ model Ratings {
   rating    Int // Rating out of 5
   comment   String? // Optional comment provided by trainee
   createdAt DateTime @default(now())
-
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String // ID of the session being rated
   // Relations
   trainee   Trainee @relation(fields: [traineeId], references: [id])
   traineeId String // ID of the trainee who gave the rating

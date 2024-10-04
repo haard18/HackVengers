@@ -103,13 +103,13 @@ traineeRouter.post('/login', async (req, res) => {
 traineeRouter.post('/createSession', async (req, res) => {
     try {
         const { success } = sessionSchema.safeParse(req.body);
-        if(!success){
-            res.status(400).json({error: "Invalid data"});
+        if (!success) {
+            res.status(400).json({ error: "Invalid data" });
             return;
         }
-        const { startTime, endTime, trainerId ,topic} = req.body
+        const { startTime, endTime, trainerId, topic } = req.body
         console.log(startTime, endTime, trainerId)
-        const auth=req.headers['auth-token']
+        const auth = req.headers['auth-token']
 
         if (!auth || typeof auth !== 'string') {
             res.status(401).json({ error: "Unauthorized" });
@@ -142,4 +142,39 @@ traineeRouter.post('/createSession', async (req, res) => {
         res.status(400).json({ error: "Invalid data" });
     }
 });
+traineeRouter.post('/rateSession', async (req, res) => {
+    
+});
+traineeRouter.post('/getSessions', async (req, res) => {
+
+    const auth = req.headers['auth-token'];
+
+    // Check if auth is present and is a string
+    if (!auth || typeof auth !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+
+    try {
+        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || 'secret');
+        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+
+        // Check if traineeId is a valid string
+        if (!traineeId || typeof traineeId !== 'string') {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+
+        const sessions = await prisma.session.findMany({
+            where: {
+                traineeId: traineeId
+            }
+        });
+
+        res.json(sessions);
+    } catch (error) {
+        res.status(401).json({ error: "Unauthorized" });
+    }
+});
+
 export default traineeRouter;
