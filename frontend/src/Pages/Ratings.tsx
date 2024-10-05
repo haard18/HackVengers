@@ -1,13 +1,14 @@
 import axios from "axios";
+// import { nav } from "framer-motion/client";
 import  { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const RatingForm = () => {
   const [fieldRatings, setFieldRatings] = useState([0, 0, 0, 0, 0]);
   const [comment, setComment] = useState("");
   const session = useLocation().state?.sessionId;
   console.log("Session ID:", session);
-
+  const navigate = useNavigate();
   const handleRatingChange = (index: number, newRating: number) => {
     const updatedRatings = [...fieldRatings];
     updatedRatings[index] = newRating;
@@ -29,6 +30,7 @@ const RatingForm = () => {
         // Check response status
         if (response.status === 200) {
             console.log("Rating submitted successfully:", response.data);
+            navigate('/sessions');
         } else {
             console.error("Failed to submit rating:", response.data);
         }
