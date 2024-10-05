@@ -8,16 +8,18 @@ const Navbar = () => {
   const [balance, setBalance] = useState<number | null>(null); // State to store balance
   const navigate = useNavigate();
   const token = localStorage.getItem("token"); // Get the token from localStorage
+  const userType = localStorage.getItem("userType"); // Get the userType from localStorage
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userType");
     setBalance(null); // Clear balance on logout
     navigate('/auth');
-  };
+  }
 
   // Function to check balance
   const checkBalance = useCallback(async () => {
-    if (!token) return; // Return if there's no token
+    if (!token || userType !== 'trainee') return; // Return if there's no token or userType is not trainee
 
     try {
       const response = await axios.get('http://localhost:3000/api/trainee/checkBalance', {
@@ -30,7 +32,7 @@ const Navbar = () => {
       console.error("Error checking balance:", err);
       setBalance(null); // Clear balance on error
     }
-  }, [token]);
+  }, [token, userType]);
 
   // useEffect to check balance when the component mounts
   useEffect(() => {
