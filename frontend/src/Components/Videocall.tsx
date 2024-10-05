@@ -75,9 +75,15 @@ const Videocall: React.FC = () => {
     setCall(null);
     recorder?.stopRecording(() => {
       const audioBlob = recorder.getBlob();
+      console.log(audioBlob); // Log the audioBlob for now
       // Process or upload the recorded audio
     });
     setRecorder(null);
+    if (userType === 'trainer') {
+      navigate('/sessions'); // Redirect trainer to /sessions
+    } else {
+      navigate('/ratings'); // Redirect trainee to /ratings
+    }
   };
 
   const startCall = () => {
