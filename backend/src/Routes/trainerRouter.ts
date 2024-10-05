@@ -28,7 +28,7 @@ const loginSchema = z.object({
 });
 const sendMail = async (email: string, subject: string, text: string) => {
 
-    
+
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
@@ -45,58 +45,67 @@ const sendMail = async (email: string, subject: string, text: string) => {
         to: email,
         subject: subject,
         html: `
-          <div style="
-            background-color: #f4f4f9;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-          ">
-            <div style="
-              max-width: 600px;
-              margin: 0 auto;
-              background-color: white;
-              padding: 20px;
-              border-radius: 10px;
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-              text-align: center;
-            ">
-              <h1 style="
-                color: #333;
-                font-size: 24px;
-                margin-bottom: 20px;
-              ">
-                ${subject}
-              </h1>
-              <p style="
-                color: #555;
-                font-size: 16px;
-                line-height: 1.6;
-                margin-bottom: 30px;
-              ">
-                ${text}
-              </p>
-              <a href="#" style="
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-                text-decoration: none;
-                font-size: 16px;
-              ">
-                Call to Action
-              </a>
-            </div>
-            <footer style="
-              margin-top: 20px;
-              color: #999;
-              font-size: 12px;
-              text-align: center;
-            ">
-              &copy; 2024 EduHacks. All rights reserved.
-            </footer>
-          </div>
+<div style="
+    background-color: #f4f4f9;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+">
+    <div style="
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    ">
+        <h1 style="
+            color: #4CAF50;
+            font-size: 26px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        ">
+            You are Invited for the Session
+        </h1>
+        <h2 style="
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        ">
+            ${subject}
+        </h2>
+        <p style="
+            color: #555;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        ">
+            ${text}
+        </p>
+        <a href="/https://vh-24-hack-vengers-git-main-haard18s-projects.vercel.app/sessions" style="
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        ">
+            Join Now
+        </a>
+    </div>
+    <footer style="
+        margin-top: 30px;
+        color: #999;
+        font-size: 12px;
+        text-align: center;
+    ">
+        &copy; 2024 EduHacks. All rights reserved.
+    </footer>
+</div>
         `
     };
-    
+
     try {
         await transporter.sendMail(mailOptions);
         console.log("Email sent");
@@ -106,7 +115,7 @@ const sendMail = async (email: string, subject: string, text: string) => {
 }
 trainerRouter.post('/sendMail', async (req, res) => {
     const { email, subject, text } = req.body;
-    
+
     sendMail(email, subject, text);
     res.json({ message: "Mail sent" });
 
@@ -282,8 +291,36 @@ trainerRouter.post('/acceptSession/:sessionId', async (req, res) => {
     }
 });
 trainerRouter.get('/getAllTrainers', async (req, res) => {
-    const trainers = await prisma.trainer.findMany();
-    res.json(trainers);
+    try {
+        // Fetch all trainers along with their average rating
+        const trainers = await prisma.trainer.findMany({
+            include: {
+                ratings: {
+                    select: {
+                        rating: true,
+                    },
+                },
+            },
+        });
+
+        // Map trainers to include average rating
+        const trainersWithAvgRating = trainers.map(trainer => {
+            const ratings = trainer.ratings.map(r => r.rating); // Extract ratings
+            const avgRating = ratings.length > 0
+                ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length // Calculate average
+                : 0; // Default to 0 if no ratings
+
+            return {
+                ...trainer,
+                avgRating, // Add average rating to trainer object
+            };
+        });
+
+        res.json(trainersWithAvgRating);
+    } catch (error) {
+        console.error("Error fetching trainers:", error);
+        res.status(500).json({ error: "An error occurred while fetching trainers" });
+    }
 });
 
 export default trainerRouter

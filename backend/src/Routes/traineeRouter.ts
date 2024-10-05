@@ -172,10 +172,10 @@ traineeRouter.post('/rateSession', async (req, res) => {
         }
 
         // Extract sessionId, comment, and rating from request body
-        const { sessionId, comment} = req.body;
-        const rating =parseFloat(req.body.rating);
+        const { sessionId, comment } = req.body;
+        const rating = parseFloat(req.body.rating);
         // Validate rating
-        
+
 
         // Fetch the session to ensure it exists and belongs to the trainee
         const session = await prisma.session.findUnique({
@@ -194,7 +194,7 @@ traineeRouter.post('/rateSession', async (req, res) => {
             res.status(403).json({ error: "Forbidden. You cannot rate this session." });
             return;
         }
-        if(session.trainerId===null){
+        if (session.trainerId === null) {
             res.status(403).json({ error: "Forbidden. Trainer has not been assigned to this session." });
             return;
         }
@@ -230,8 +230,81 @@ traineeRouter.post('/rateSession', async (req, res) => {
         return;
     } catch (error) {
         console.error("Error in rateSession:", error);
-         res.status(500).json({ error: "An error occurred while rating the session" });
+        res.status(500).json({ error: "An error occurred while rating the session" });
         return;
+    }
+});
+traineeRouter.get('/checkBalance',async(req,res)=>{
+    const auth = req.headers['auth-token'];
+
+    if (!auth || typeof auth !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+
+    try {
+        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || 'secret');
+        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+
+        if (!traineeId || typeof traineeId !== 'string') {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+
+        const trainee = await prisma.trainee.findUnique({
+            where: {
+                id: traineeId
+            }
+        });
+
+        if (!trainee) {
+            res.status(404).json({ error: "Trainee not found" });
+            return;
+        }
+
+        res.json({ balance: trainee.token });
+    } catch (error) {
+        console.error("Error in checkBalance:", error);
+        res.status(500).json({ error: "An error occurred while checking balance" });
+    }
+})
+traineeRouter.post("/getTokens", async (req, res) => {
+    const auth = req.headers['auth-token'];
+    if (!auth || typeof auth !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    try {
+        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || 'secret');
+        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+        if (!traineeId || typeof traineeId !== 'string') {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+        const trainee = await prisma.trainee.findUnique({
+            where: {
+                id: traineeId
+            }
+        });
+        if (!trainee) {
+            res.status(404).json({ error: "Trainee not found" });
+            return;
+        }
+        const sessionCount = await prisma.session.count({
+            where: {
+                traineeId: trainee.id,
+                status: 'Accepted'
+            }
+        });
+
+        // Calculate tokens based on the number of sessions attended
+        const tokens = sessionCount * 10;
+
+        // Return the token count
+        res.json({ tokens });
+    } catch (error) {
+        console.error("Error in getTokens:", error);
+        res.status(500).json({ error: "An error occurred while fetching tokens" });
     }
 });
 
@@ -259,9 +332,9 @@ traineeRouter.get('/getMySessions', async (req, res) => {
             where: {
                 traineeId: traineeId
             },
-            include:{
+            include: {
                 trainer: {
-                    select:{
+                    select: {
                         name: true,
                         email: true,
                         phone: true
