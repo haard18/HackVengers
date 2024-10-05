@@ -48,7 +48,9 @@ const MySessions = () => {
     };
 
     const handleJoinCall = () => {
-        navigate(`/videocall`, { state: { traineeEmail,sendingsessionId } });
+        if (nextSession) {
+            navigate(`/videocall`, { state: { traineeEmail, sessionId: nextSession.id } });
+        }
     };
 
     useEffect(() => {

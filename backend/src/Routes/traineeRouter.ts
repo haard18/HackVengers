@@ -152,47 +152,89 @@ traineeRouter.post('/createSession', async (req, res) => {
 });
 
 traineeRouter.post('/rateSession', async (req, res) => {
-    const token= req.headers['auth-token'];
+    const token = req.headers['auth-token'];
+
+    // Check for token
     if (!token || typeof token !== 'string') {
         res.status(401).json({ error: "Unauthorized" });
         return;
     }
+
     try {
+        // Verify token and extract trainee ID
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+        const traineeId = (decodedToken as jwt.JwtPayload).id;
+
+        // Check if traineeId is valid
         if (!traineeId || typeof traineeId !== 'string') {
             res.status(401).json({ error: "Unauthorized" });
             return;
         }
-        const { sessionId, comment,rating } = req.body;
-    
+
+        // Extract sessionId, comment, and rating from request body
+        const { sessionId, comment} = req.body;
+        const rating =parseFloat(req.body.rating);
+        // Validate rating
+        
+
+        // Fetch the session to ensure it exists and belongs to the trainee
         const session = await prisma.session.findUnique({
-            where: {
-                id: sessionId
-            }
+            where: { id: sessionId },
+            include: { trainee: true, trainer: true }, // Include related trainee and trainer for validation
         });
+
+        // Check if session exists
         if (!session) {
             res.status(404).json({ error: "Session not found" });
             return;
         }
+
+        // Check if the session belongs to the trainee
         if (session.traineeId !== traineeId) {
-            res.status(403).json({ error: "Forbidden" });
+            res.status(403).json({ error: "Forbidden. You cannot rate this session." });
             return;
         }
+        if(session.trainerId===null){
+            res.status(403).json({ error: "Forbidden. Trainer has not been assigned to this session." });
+            return;
+        }
+        // Update the session's ratings and status
         await prisma.session.update({
-            where: {
-                id: sessionId
-            },
+            where: { id: sessionId },
             data: {
-                ratings: rating,
-                status: 'Rated',
-            }
+                ratings: {
+                    create: {
+                        rating,
+                        comment,
+                        trainee: { connect: { id: traineeId } },
+                        trainer: { connect: { id: session.trainerId } }, // Ensure trainerId exists in the session
+                    }
+                },
+                status: 'Rated', // Update status to 'Rated'
+            },
         });
+
+        // Create a new rating record
+        await prisma.ratings.create({
+            data: {
+                session: { connect: { id: sessionId } },
+                trainee: { connect: { id: traineeId } },
+                trainer: { connect: { id: session.trainerId } }, // Ensure trainerId exists in the session
+                rating,
+                comment,
+            },
+        });
+
+        // Respond with success message
         res.json({ message: "Session rated successfully" });
+        return;
     } catch (error) {
-        res.status(401).json({ error: "Unauthorized" });
+        console.error("Error in rateSession:", error);
+         res.status(500).json({ error: "An error occurred while rating the session" });
+        return;
     }
 });
+
 traineeRouter.get('/getMySessions', async (req, res) => {
 
     const auth = req.headers['auth-token'];
