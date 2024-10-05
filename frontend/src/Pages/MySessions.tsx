@@ -10,7 +10,7 @@ const MySessions = () => {
         endTime: string;
         status: string;
         traineeId: string;
-        trainee: { name: string; email: string; phone: string }; // Updated to include trainee information
+        trainee: { name: string; email: string; phone: string };
     };
 
     const token = localStorage.getItem('token');
@@ -25,9 +25,8 @@ const MySessions = () => {
         const response = await axios.get(`http://localhost:3000/api/${userType}/getMySessions`, {
             headers: { 'auth-token': token }
         });
-        // Assuming response.data is an array
         if (response.data.length > 0) {
-            setTraineeEmail(response.data[0].trainee.email); // Set email from the first session
+            setTraineeEmail(response.data[0].trainee.email);
         }
         console.log('Fetched sessions:', response.data);
         setSessions(response.data);
@@ -46,8 +45,7 @@ const MySessions = () => {
     };
 
     const handleJoinCall = () => {
-        // Navigate to the VideoCall page with the trainee's email
-        navigate(`/videocall`, { state: { traineeEmail } }); // Pass trainee's email for navigation
+        navigate(`/videocall`, { state: { traineeEmail } });
     };
 
     useEffect(() => {
@@ -92,40 +90,40 @@ const MySessions = () => {
     };
 
     return (
-        <div className="bg-white p-8 h-screen">
-            <h2 className="text-black text-2xl mb-6">My Sessions</h2>
+        <div className="bg-gray-900 p-8 h-screen text-gray-100">
+            <h2 className="text-white text-3xl mb-6 font-semibold">My Sessions</h2>
 
             {nextSession && (
-                <div className="bg-blue-100 p-4 rounded-lg mb-6">
-                    <h3 className="text-blue-600 font-bold">Next Accepted Session:</h3>
-                    <p className="text-gray-700">Topic: {nextSession.topic}</p>
-                    <p className="text-gray-700">Ends in: {formatTimeLeft(timeLeft)}</p>
+                <div className="bg-gray-800 p-6 rounded-lg mb-6 shadow-lg">
+                    <h3 className="text-blue-400 font-bold text-lg">Next Accepted Session:</h3>
+                    <p className="text-gray-300">Topic: {nextSession.topic}</p>
+                    <p className="text-gray-300">Ends in: {formatTimeLeft(timeLeft)}</p>
                     <button
-                        onClick={handleJoinCall} // Directly call join function
-                        className="mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        onClick={handleJoinCall}
+                        className="mt-4 p-2 bg-green-600 text-white rounded transition-colors duration-300 hover:bg-green-700"
                     >
                         Join Call
                     </button>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {sessions.map((session) => (
-                    <div key={session.id} className="bg-gray-100 p-6 rounded-lg shadow-lg mb-4 transition-transform transform hover:scale-105">
-                        <h3 className="text-lg font-bold mb-2">{session.topic}</h3>
-                        <p className="text-gray-700 mb-2">Start Time: {new Date(session.startTime).toLocaleString()}</p>
-                        <p className="text-gray-700 mb-2">End Time: {new Date(session.endTime).toLocaleString()}</p>
-                        <p className={`text-gray-700 mb-2 ${session.status === 'Accepted' ? 'text-green-500' : session.status === 'Pending' ? 'text-yellow-500' : ''}`}>
+                    <div key={session.id} className="bg-gray-800 p-6 rounded-lg shadow-lg transform transition-transform hover:scale-105">
+                        <h3 className="text-lg font-bold text-blue-400 mb-2">{session.topic}</h3>
+                        <p className="text-gray-300 mb-2">Start Time: {new Date(session.startTime).toLocaleString()}</p>
+                        <p className="text-gray-300 mb-2">End Time: {new Date(session.endTime).toLocaleString()}</p>
+                        <p className={`text-gray-300 mb-2 ${session.status === 'Accepted' ? 'text-green-500' : session.status === 'Pending' ? 'text-yellow-500' : ''}`}>
                             Status: {session.status}
                         </p>
-                        <p className="text-gray-700 mb-2">
+                        <p className="text-gray-300 mb-2">
                             {userType === 'trainer'
-                                ? `Trainee: ${session.trainee.name} (${session.trainee.email})` // Show trainee name and email
+                                ? `Trainee: ${session.trainee.name} (${session.trainee.email})`
                                 : `Trainer: ${session.trainee.name}`}
                         </p>
                         {userType === 'trainer' && session.status === 'Pending' && (
                             <button
-                                className="bg-green-500 text-white rounded-lg px-4 py-2 mt-4 transition-colors duration-200 hover:bg-green-600"
+                                className="bg-green-600 text-white rounded-lg px-4 py-2 mt-4 transition-colors duration-300 hover:bg-green-700"
                                 onClick={() => handleAcceptSession(session.id)}
                             >
                                 Accept Session
@@ -133,8 +131,8 @@ const MySessions = () => {
                         )}
                         {session.status === 'Accepted' && (
                             <button
-                                onClick={handleJoinCall} // Directly call join function
-                                className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                onClick={handleJoinCall}
+                                className="mt-4 p-2 bg-blue-600 text-white rounded transition-colors duration-300 hover:bg-blue-700"
                             >
                                 Join Call
                             </button>

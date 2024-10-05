@@ -12,7 +12,9 @@ import Videocall from './Components/Videocall';
 function App() {
   return (
     <Router>
+      <div className="navbar bg-gray-700">
       <Navbar />
+      </div>
       <Routes>
         <Route path="/" element={<Landingpage />} />
         <Route path="/features" element={<Featurespage  />} />

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cards } from '../Components/Card';
-import { BackgroundBeams } from '../Components/ui/background-beams';
 
 const Featurespage = () => {
     type Trainers = {
@@ -41,8 +40,9 @@ const Featurespage = () => {
     }, []);
 
     return (
-        <div className="bg-gradient-to-r from-gray-800 to-black min-h-screen p-8 relative">
+        <div className="bg-gray-800 min-h-screen p-8 relative">
             <>
+                <h1 className="text-white text-4xl font-bold text-center mb-10">Explore Our Mentorship Program</h1>
                 <div className="flex flex-wrap justify-around gap-6 mb-8">
                     <Cards
                         title="Connect"
@@ -61,43 +61,45 @@ const Featurespage = () => {
                     />
                 </div>
 
-                <div className="bg-transparent rounded-lg shadow-lg p-6 mx-4">
+                <div className="bg-gray-800 bg-opacity-90 rounded-lg shadow-lg p-6 mx-4">
                     <h2 className="text-green-500 text-3xl font-semibold mb-4">Available Tutors</h2>
-                    <table className="min-w-full bg-black rounded-lg overflow-hidden shadow-md text-green-500">
-                        <thead className="bg-gray-200">
-                            <tr className="text-center ">
-                                <th className="py-3 px-4 text-gray-700 font-semibold"></th>
-                                <th className="py-3 px-4 text-gray-700 font-semibold">Name</th>
-                                <th className="py-3 px-4 text-gray-700 font-semibold">Qualification</th>
-                                <th className="py-3 px-4 text-gray-700 font-semibold">Subjects</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {trainers.map((trainer) => (
-                                <tr key={trainer.email} className="text-center hover:bg-gray-400 hover:text-black transition-colors duration-200">
-                                    <td className='py-3 px-4 border-b border-gray-300'>
-                                        <div className='flex justify-center'>
-                                            <img src={trainer.iconurl} alt="" className="w-12 h-12 rounded-full" />
-                                        </div>
-                                    </td>
-                                    <td className="py-3 px-4 border-b border-gray-300">{trainer.name}</td>
-                                    <td className="py-3 px-4 border-b border-gray-300">{trainer.qualification}</td>
-                                    <td className="py-3 px-4 border-b border-gray-300">{trainer.subjects.join(', ')}</td>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full bg-gray-700 rounded-lg shadow-md text-white">
+                            <thead>
+                                <tr className="text-center bg-gray-600 text-white uppercase text-sm tracking-wider">
+                                    <th className="py-3 px-4 font-semibold"></th>
+                                    <th className="py-3 px-4 font-semibold">Name</th>
+                                    <th className="py-3 px-4 font-semibold">Qualification</th>
+                                    <th className="py-3 px-4 font-semibold">Subjects</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-600">
+                                {trainers.map((trainer) => (
+                                    <tr key={trainer.email} className="text-center hover:bg-gray-500 transition-colors duration-200">
+                                        <td className="py-3 px-4">
+                                            <div className="flex justify-center">
+                                                <img src={trainer.iconurl} alt={trainer.name} className="w-14 h-14 rounded-full border-2 border-green-500" />
+                                            </div>
+                                        </td>
+                                        <td className="py-3 px-4 font-medium text-green-400">{trainer.name}</td>
+                                        <td className="py-3 px-4 text-gray-300">{trainer.qualification}</td>
+                                        <td className="py-3 px-4 text-gray-300">{trainer.subjects.join(', ')}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-
-
-                <BackgroundBeams />
-                <button
-                    onClick={() => navigate('/connect')}
-                    className="mt-6 w-[1/6] border-4 text-white border-green-500 rounded-lg px-4 py-2 transition-transform transform hover:scale-105"
-                >
-                    Find Ideal Trainer
-                </button>
+                {/* Centering the button */}
+                <div className="flex justify-center mt-8">
+                    <button
+                        onClick={() => navigate('/connect')}
+                        className="bg-green-500 text-white rounded-lg px-6 py-3 transition-transform transform hover:scale-105 shadow-lg hover:bg-green-600"
+                    >
+                        Find Ideal Trainer
+                    </button>
+                </div>
             </>
         </div>
     );

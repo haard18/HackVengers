@@ -13,7 +13,8 @@ const navigate=useNavigate();
   };
   return (
     <>
-      <nav className="bg-black p-4 relative overflow-hidden">
+    <div className="navbar bg-gray-900">
+      <nav className=" p-4 relative overflow-hidden">
         <div className="container mx-auto flex justify-between items-center relative z-10">
           {/* Logo/Brand */}
           <div className="text-green-400 text-2xl font-bold">
@@ -43,6 +44,7 @@ const navigate=useNavigate();
       </nav>
       {/* Uncomment this line if you want to use BackgroundBeams */}
       {/* <BackgroundBeams /> */}
+      </div>
     </>
   );
 }
