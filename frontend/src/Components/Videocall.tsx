@@ -17,6 +17,7 @@ const Videocall: React.FC = () => {
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const email = useLocation().state.traineeEmail;
 
+  const navigate = useNavigate(); // Initialize useNavigate
   const userType = localStorage.getItem('userType'); // Get userType from local storage
 
   useEffect(() => {
@@ -63,6 +64,13 @@ const Videocall: React.FC = () => {
           // Send the entire file to OpenAI
         });
         setRecorder(null);
+      }
+
+      // Navigate based on userType
+      if (userType === 'trainer') {
+        navigate('/sessions');
+      } else if (userType === 'trainee') {
+        navigate('/ratings'); // Redirect to ratings for trainee
       }
     }
   };
@@ -129,6 +137,7 @@ const Videocall: React.FC = () => {
     });
     console.log('Email sent:', response.data);
   };
+
 
   return (
     <div className="flex flex-col items-center bg-white rounded-xl shadow-lg p-6 w-full max-w-5xl mx-auto">
