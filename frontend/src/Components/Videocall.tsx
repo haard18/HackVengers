@@ -16,12 +16,15 @@ const Videocall: React.FC = () => {
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const email = useLocation().state?.traineeEmail;
-  const sessionId = useLocation().state?.sessionId;
-  console.log("Session ID:", sessionId);
-  console.log("Trainee Email:", email);
+  // const sessionId = useLocation().state?.sessionId;
+
   const navigate = useNavigate();
   const userType = localStorage.getItem('userType');
+  const location = useLocation();
+  const sessionId = location.state?.sessionId;
 
+  console.log("Location State:", location.state); // Log entire state to check what's passed
+  console.log("Session ID:", sessionId);
   useEffect(() => {
     console.log(sessionId)
     peer.current = new Peer();
@@ -59,7 +62,7 @@ const Videocall: React.FC = () => {
     if (userType === 'trainer') {
       navigate('/sessions'); // Redirect trainer to /sessions
     } else {
-      navigate('/ratings' , {state:{sessionId}}); // Redirect trainee to /ratings
+      navigate('/ratings', { state: { sessionId } }); // Redirect trainee to /ratings with sessionId
     }
   };
 

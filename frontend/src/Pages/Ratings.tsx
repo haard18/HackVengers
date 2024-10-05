@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -12,20 +13,29 @@ const RatingForm = () => {
     setFieldRatings(updatedRatings);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const token = localStorage.getItem('token');
     const averageRating =
-      fieldRatings.reduce((sum, rating) => sum + rating, 0) /
-      fieldRatings.length;
+        fieldRatings.reduce((sum, rating) => sum + rating, 0) / fieldRatings.length;
 
-    const data = {
-      rating: Math.round(averageRating), // Rounded rating
-      comment,
-    };
+    try {
+        const response = await axios.post('http://localhost:3000/api/trainee/rateSession', {
+            sessionId: session,
+            comment: comment,
+            rating: averageRating,
+        }, { headers: { 'auth-token': token }});
 
-    // Send data to the backend via POST request
-    console.log("Submitting Rating:", data);
-    // e.g., fetch('/api/submitRating', { method: 'POST', body: JSON.stringify(data) })
-  };
+        // Check response status
+        if (response.status === 200) {
+            console.log("Rating submitted successfully:", response.data);
+        } else {
+            console.error("Failed to submit rating:", response.data);
+        }
+    } catch (error) {
+        console.error("Error submitting rating:",error);
+    }
+};
+
 
   return (
     <div>
