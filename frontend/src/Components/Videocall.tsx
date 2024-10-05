@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Peer, { MediaConnection } from 'peerjs';
 import RecordRTC from 'recordrtc';
 import { FaMicrophone, FaMicrophoneSlash, FaPhoneSlash, FaVideo, FaVideoSlash, FaClipboard } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { BackgroundBeams } from './ui/background-beams';
 
 const Videocall: React.FC = () => {
   const [peerId, setPeerId] = useState<string | null>(null);
