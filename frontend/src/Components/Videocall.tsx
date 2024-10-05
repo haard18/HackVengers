@@ -15,9 +15,9 @@ const Videocall: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
-  const email = useLocation().state.traineeEmail;
+  const email = useLocation().state?.traineeEmail;
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const userType = localStorage.getItem('userType');
 
   useEffect(() => {
@@ -50,6 +50,7 @@ const Videocall: React.FC = () => {
     setCall(null);
     recorder?.stopRecording(() => {
       const audioBlob = recorder.getBlob();
+      console.log(audioBlob); // Log the audioBlob for now
       // Process or upload the recorded audio
     });
     setRecorder(null);
@@ -112,7 +113,6 @@ const Videocall: React.FC = () => {
     });
     console.log('Email sent:', response.data);
   };
-
 
   return (
     <div className='bg-black min-h-screen flex items-center justify-center'>
@@ -189,7 +189,6 @@ const Videocall: React.FC = () => {
           </button>
         </div>
       </div>
-
     </div>
   );
 };
