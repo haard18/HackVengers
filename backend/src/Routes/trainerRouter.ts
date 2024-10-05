@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
-
+configDotenv()  
 import prisma from '../dbconfig';
 import { z } from 'zod';
 const trainerRouter: Router = Router();
@@ -134,7 +134,7 @@ trainerRouter.post('/signUp', async (req, res) => {
             const subject = subjects[0].toLowerCase(); // Convert to lowercase for consistency
             if (subject === 'physics') {
                 imageUrl = PhysicsURL;
-            } else if (subject === 'math') {
+            } else if (subject === 'math'||subject === 'maths') {
                 imageUrl = MathsURL;
             } else if (subject === 'biology') {
                 imageUrl = BiologyURL;
@@ -146,7 +146,7 @@ trainerRouter.post('/signUp', async (req, res) => {
             const firstSubject = subjects[0].toLowerCase();
             if (firstSubject === 'physics') {
                 imageUrl = PhysicsURL;
-            } else if (firstSubject === 'math') {
+            } else if (firstSubject === 'math'||firstSubject === 'maths') {
                 imageUrl = MathsURL;
             } else if (firstSubject === 'biology') {
                 imageUrl = BiologyURL;
@@ -154,7 +154,7 @@ trainerRouter.post('/signUp', async (req, res) => {
                 imageUrl = ChemistryURL;
             }
         }
-
+        console.log(imageUrl);
         const trainer = await prisma.trainer.create({
             data: {
                 name,

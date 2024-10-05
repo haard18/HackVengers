@@ -19,7 +19,8 @@ const Navbar = () => {
 
   // Function to check balance
   const checkBalance = useCallback(async () => {
-    if (!token || userType !== 'trainee') return; // Return if there's no token or userType is not trainee
+    // Only proceed if token is present and userType is 'trainee'
+    if (!token || userType !== 'trainee') return;
 
     try {
       const response = await axios.get('http://localhost:3000/api/trainee/checkBalance', {
@@ -60,7 +61,7 @@ const Navbar = () => {
 
           {/* Login/Signup or Logout */}
           <div className="space-x-4 flex items-center">
-            {token ? (
+            {token && userType === "trainee" ? (
               <>
                 {/* Wallet Icon and Balance Display */}
                 <div className="flex items-center text-white">
@@ -75,8 +76,21 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <a href="/auth" className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">Login</a>
-                <a href="/auth" className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300">Signup</a>
+                {token && userType === "trainer" ? (
+                  <button
+                    onClick={handleLogout}
+                    className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">
+                    Logout
+                  </button>
+                ) : (
+                  <>
+                  {/* Login and Signup Links */}
+                  <a href="/auth" className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">Login</a>
+                  <a href="/auth" className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300">Signup</a>
+                  </>
+                )}
+               
+                
               </>
             )}
           </div>
