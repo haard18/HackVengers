@@ -14,9 +14,9 @@ function App() {
   return (
     <div className="app " style={{fontFamily:'"Baloo Bhai 2", sans-serif'}} >
     <Router>
-      <div className="navbar bg-gray-700">
+      {/* <div className="navbar bg-gray-700">
       <Navbar />
-      </div>
+      </div> */}
       <Routes>
         <Route path="/" element={<Landingpage />} />
         <Route path="/features" element={<Featurespage  />} />

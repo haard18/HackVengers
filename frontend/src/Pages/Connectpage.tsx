@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import LoadingScreen from '../Components/Loading Screen'; // Ensure correct import path
+import Navbar from '../Components/Navbar';
 
 const Connectpage = () => {
     type IdealTrainer = {
@@ -112,6 +113,8 @@ const Connectpage = () => {
     }
 
     return (
+        <>
+        <Navbar/>
         <div className="bg-gray-900 text-green-500 h-full p-8">
             <h2 className="text-4xl font-extrabold mb-6 text-center">Find Your Ideal Trainers</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -194,6 +197,7 @@ const Connectpage = () => {
                 </div>
             )}
         </div>
+        </>
     );
 };
 

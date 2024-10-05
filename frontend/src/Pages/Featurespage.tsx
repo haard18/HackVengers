@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cards } from '../Components/Card';
+import Navbar from '../Components/Navbar';
 
 const Featurespage = () => {
     type Trainers = {
@@ -40,6 +41,8 @@ const Featurespage = () => {
     }, []);
 
     return (
+        <>
+        <Navbar/>
         <div className="bg-gray-800 min-h-screen p-8 relative">
             <>
                 <h1 className="text-white text-4xl font-bold text-center mb-10">Explore Our Mentorship Program</h1>
@@ -102,6 +105,7 @@ const Featurespage = () => {
                 </div>
             </>
         </div>
+        </>
     );
 };
 

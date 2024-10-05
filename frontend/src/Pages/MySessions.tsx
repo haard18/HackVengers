@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../Components/Navbar";
 
 const MySessions = () => {
     type Session = {
@@ -93,6 +94,10 @@ const MySessions = () => {
     };
 
     return (
+        <>
+        
+        <Navbar/>
+    
         <div className="bg-gray-900 p-8 h-screen text-gray-100">
             <h2 className="text-white text-3xl mb-6 font-semibold">My Sessions</h2>
 
@@ -144,6 +149,7 @@ const MySessions = () => {
                 ))}
             </div>
         </div>
+        </>
     );
 };
 
