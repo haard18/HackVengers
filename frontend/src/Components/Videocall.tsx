@@ -53,6 +53,11 @@ const Videocall: React.FC = () => {
       // Process or upload the recorded audio
     });
     setRecorder(null);
+    if (userType === 'trainer') {
+      navigate('/sessions'); // Redirect trainer to /sessions
+    } else {
+      navigate('/ratings'); // Redirect trainee to /ratings
+    }
   };
 
   const startCall = () => {
@@ -184,7 +189,7 @@ const Videocall: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
     </div>
   );
 };

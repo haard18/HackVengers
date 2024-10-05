@@ -10,7 +10,8 @@ const MySessions = () => {
         endTime: string;
         status: string;
         traineeId: string;
-        trainee: { name: string; email: string; phone: string };
+        trainer?: { name: string; email: string; phone: string };
+        trainee?: { name: string; email: string; phone: string };
     };
 
     const token = localStorage.getItem('token');
@@ -25,7 +26,8 @@ const MySessions = () => {
         const response = await axios.get(`http://localhost:3000/api/${userType}/getMySessions`, {
             headers: { 'auth-token': token }
         });
-        if (response.data.length > 0) {
+        if(userType==='trainer' && response.data.length>0){
+        
             setTraineeEmail(response.data[0].trainee.email);
         }
         console.log('Fetched sessions:', response.data);
@@ -118,8 +120,8 @@ const MySessions = () => {
                         </p>
                         <p className="text-gray-300 mb-2">
                             {userType === 'trainer'
-                                ? `Trainee: ${session.trainee.name} (${session.trainee.email})`
-                                : `Trainer: ${session.trainee.name}`}
+                                ? `Trainee: ${session.trainee?.name} (${session.trainee?.email})`
+                                : `Trainer: ${session.trainer?.name}`}
                         </p>
                         {userType === 'trainer' && session.status === 'Pending' && (
                             <button
