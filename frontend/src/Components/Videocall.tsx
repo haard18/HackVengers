@@ -16,11 +16,14 @@ const Videocall: React.FC = () => {
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const email = useLocation().state?.traineeEmail;
-
+  const sessionId = useLocation().state?.sessionId;
+  console.log("Session ID:", sessionId);
+  console.log("Trainee Email:", email);
   const navigate = useNavigate();
   const userType = localStorage.getItem('userType');
 
   useEffect(() => {
+    // console.log(sessionId)
     peer.current = new Peer();
     peer.current.on('open', (id) => setPeerId(id));
 
@@ -50,14 +53,13 @@ const Videocall: React.FC = () => {
     setCall(null);
     recorder?.stopRecording(() => {
       const audioBlob = recorder.getBlob();
-      console.log(audioBlob); // Log the audioBlob for now
-      // Process or upload the recorded audio
+      console.log(audioBlob); 
     });
     setRecorder(null);
     if (userType === 'trainer') {
       navigate('/sessions'); // Redirect trainer to /sessions
     } else {
-      navigate('/ratings'); // Redirect trainee to /ratings
+      navigate('/ratings' , {state:{sessionId}}); // Redirect trainee to /ratings
     }
   };
 

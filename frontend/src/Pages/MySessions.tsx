@@ -21,7 +21,7 @@ const MySessions = () => {
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const [traineeEmail, setTraineeEmail] = useState<string>('');
     const navigate = useNavigate();
-
+    const [sendingsessionId, setSendingsessionId] = useState<string>('');
     const fetchMySessions = async () => {
         const response = await axios.get(`http://localhost:3000/api/${userType}/getMySessions`, {
             headers: { 'auth-token': token }
@@ -47,7 +47,7 @@ const MySessions = () => {
     };
 
     const handleJoinCall = () => {
-        navigate(`/videocall`, { state: { traineeEmail } });
+        navigate(`/videocall`, { state: { traineeEmail,sendingsessionId } });
     };
 
     useEffect(() => {
@@ -61,6 +61,7 @@ const MySessions = () => {
     useEffect(() => {
         const upcomingSession = sessions.find(session => session.status === 'Accepted' && new Date(session.endTime) > new Date());
         setNextSession(upcomingSession || null);
+        setSendingsessionId(upcomingSession?.id || '');
     }, [sessions]);
 
     useEffect(() => {

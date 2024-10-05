@@ -152,7 +152,46 @@ traineeRouter.post('/createSession', async (req, res) => {
 });
 
 traineeRouter.post('/rateSession', async (req, res) => {
-
+    const token= req.headers['auth-token'];
+    if (!token || typeof token !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    try {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+        if (!traineeId || typeof traineeId !== 'string') {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+        const { sessionId, comment,rating } = req.body;
+    
+        const session = await prisma.session.findUnique({
+            where: {
+                id: sessionId
+            }
+        });
+        if (!session) {
+            res.status(404).json({ error: "Session not found" });
+            return;
+        }
+        if (session.traineeId !== traineeId) {
+            res.status(403).json({ error: "Forbidden" });
+            return;
+        }
+        await prisma.session.update({
+            where: {
+                id: sessionId
+            },
+            data: {
+                ratings: rating,
+                status: 'Rated',
+            }
+        });
+        res.json({ message: "Session rated successfully" });
+    } catch (error) {
+        res.status(401).json({ error: "Unauthorized" });
+    }
 });
 traineeRouter.get('/getMySessions', async (req, res) => {
 
