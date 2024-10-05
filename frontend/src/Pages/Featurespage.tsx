@@ -11,6 +11,7 @@ const Featurespage = () => {
         city: string;
         iconurl: string;
         subjects: string[];
+        avgRating: number;
     };
 
     const [trainers, setTrainers] = useState<Trainers[]>([]);
@@ -74,6 +75,7 @@ const Featurespage = () => {
                                     <th className="py-3 px-4 font-semibold">Name</th>
                                     <th className="py-3 px-4 font-semibold">Qualification</th>
                                     <th className="py-3 px-4 font-semibold">Subjects</th>
+                                    <th className='py-3 px-4 font-semibold'>Ratings</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-600">
@@ -86,7 +88,9 @@ const Featurespage = () => {
                                         </td>
                                         <td className="py-3 px-4 font-medium text-green-400">{trainer.name}</td>
                                         <td className="py-3 px-4 text-gray-300">{trainer.qualification}</td>
+
                                         <td className="py-3 px-4 text-gray-300">{trainer.subjects.join(', ')}</td>
+                                        <td className='py-3 px-4 text-gray-300'>{trainer.avgRating!==0?trainer.avgRating:"NA"}</td>
                                     </tr>
                                 ))}
                             </tbody>
