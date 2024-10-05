@@ -234,6 +234,40 @@ traineeRouter.post('/rateSession', async (req, res) => {
         return;
     }
 });
+traineeRouter.get('/checkBalance',async(req,res)=>{
+    const auth = req.headers['auth-token'];
+
+    if (!auth || typeof auth !== 'string') {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+
+    try {
+        const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || 'secret');
+        const traineeId = (decodedToken as jwt.JwtPayload).id as string;
+
+        if (!traineeId || typeof traineeId !== 'string') {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+
+        const trainee = await prisma.trainee.findUnique({
+            where: {
+                id: traineeId
+            }
+        });
+
+        if (!trainee) {
+            res.status(404).json({ error: "Trainee not found" });
+            return;
+        }
+
+        res.json({ balance: trainee.token });
+    } catch (error) {
+        console.error("Error in checkBalance:", error);
+        res.status(500).json({ error: "An error occurred while checking balance" });
+    }
+})
 traineeRouter.post("/getTokens", async (req, res) => {
     const auth = req.headers['auth-token'];
     if (!auth || typeof auth !== 'string') {
