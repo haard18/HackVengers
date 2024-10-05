@@ -8,6 +8,7 @@ import Authentication from './Components/Authentication';
 import MySessions from './Pages/MySessions';
 import Videocall from './Components/Videocall';
 import Ratings from './Pages/Ratings';
+import Rewards from './Pages/Rewards';
 // Import other components for routing
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path='/sessions' element={<MySessions  />} />
         <Route path="/videocall" element={<Videocall />} />
         <Route path="/ratings" element={<Ratings />} />
+        <Route path="/rewards" element={<Rewards/>} />
         {/* <Route path="/videocall" element={<Videocall />} /> */}
         {/* Add more routes as needed */}
       </Routes>
