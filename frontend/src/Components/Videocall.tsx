@@ -15,13 +15,15 @@ const Videocall: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
-  const email = useLocation().state.traineeEmail;
+  const email = useLocation().state?.traineeEmail;
+  const sessionId = useLocation().state?.sessionId;
+  console.log("Session ID:", sessionId);
+  console.log("Trainee Email:", email);
   const navigate = useNavigate();
   const userType = localStorage.getItem('userType');
-  const [captions, setCaptions] = useState<string>('');
 
   useEffect(() => {
-    // console.log(sessionId)
+    console.log(sessionId)
     peer.current = new Peer();
     peer.current.on('open', (id) => setPeerId(id));
 
@@ -38,38 +40,13 @@ const Videocall: React.FC = () => {
         const audioRecorder = new RecordRTC(localStream, { type: 'audio', mimeType: 'audio/webm' });
         audioRecorder.startRecording();
         setRecorder(audioRecorder);
-
-        // Start Speech Recognition
-        startSpeechRecognition();
       });
     });
 
     return () => {
       peer.current?.destroy();
-      stopSpeechRecognition(); // Cleanup on unmount
     };
   }, []);
-
-  const startSpeechRecognition = () => {
-    const recognition = new (window as any).SpeechRecognition();
-    recognition.continuous = true; // Keep recognizing until stopped
-    recognition.interimResults = true; // Show interim results
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = Array.from(event.results)
-        .map((result) => (result.isFinal ? result[0].transcript : ''))
-        .join(' ');
-
-      setCaptions(transcript); // Update captions state
-    };
-
-    recognition.start(); // Start listening
-  };
-
-  const stopSpeechRecognition = () => {
-    const recognition = new (window as any).SpeechRecognition();
-    recognition.stop(); // Stop listening
-  };
 
   const endCall = () => {
     call?.close();
@@ -100,9 +77,6 @@ const Videocall: React.FC = () => {
         const audioRecorder = new RecordRTC(localStream, { type: 'audio', mimeType: 'audio/wav' });
         audioRecorder.startRecording();
         setRecorder(audioRecorder);
-        
-        // Start Speech Recognition
-        startSpeechRecognition();
       });
     }
   };
@@ -196,11 +170,6 @@ const Videocall: React.FC = () => {
           </div>
         </div>
 
-        {/* Captions Display */}
-        <div className="text-center text-white mt-4 p-4 bg-gray-600 rounded-lg">
-          <p>{captions}</p>
-        </div>
-
         <div className="flex justify-center space-x-4 mt-6">
           <button
             onClick={toggleMute}
@@ -216,7 +185,7 @@ const Videocall: React.FC = () => {
           </button>
           <button
             onClick={endCall}
-            className="p-3 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 focus:outline-none"
+            className="p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-transform transform hover:scale-105 focus:outline-none"
           >
             <FaPhoneSlash className="w-6 h-6" />
           </button>
