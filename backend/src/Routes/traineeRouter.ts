@@ -245,7 +245,7 @@ traineeRouter.get('/checkBalance',async(req,res)=>{
     try {
         const decodedToken = jwt.verify(auth, process.env.JWT_SECRET || 'secret');
         const traineeId = (decodedToken as jwt.JwtPayload).id as string;
-
+        
         if (!traineeId || typeof traineeId !== 'string') {
             res.status(401).json({ error: "Unauthorized" });
             return;
@@ -256,6 +256,7 @@ traineeRouter.get('/checkBalance',async(req,res)=>{
                 id: traineeId
             }
         });
+        console.log(trainee);
 
         if (!trainee) {
             res.status(404).json({ error: "Trainee not found" });
@@ -299,6 +300,16 @@ traineeRouter.post("/getTokens", async (req, res) => {
 
         // Calculate tokens based on the number of sessions attended
         const tokens = sessionCount * 10;
+        await prisma.trainee.update({
+            where: {
+                id: trainee.id
+            },
+            data: {
+                token: {
+                    increment: tokens
+                }
+            }
+        });
 
         // Return the token count
         res.json({ tokens });

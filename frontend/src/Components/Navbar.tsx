@@ -1,14 +1,41 @@
 import "../index.css";
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios'; // Importing Axios
+import { FaWallet } from "react-icons/fa";
 
 const Navbar = () => {
+  const [balance, setBalance] = useState<number | null>(null); // State to store balance
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  
+
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setBalance(null); // Clear balance on logout
     navigate('/auth');
   };
+
+  // Function to check balance
+  const checkBalance = async () => {
+    if (!token) return; // Return if there's no token
+
+    try {
+      const response = await axios.get('http://localhost:3000/api/trainee/checkBalance', {
+        headers: {
+          'auth-token': token // Include the auth token in headers
+        }
+      });
+      setBalance(response.data.balance); // Set balance from response
+    } catch (err) {
+      console.error("Error checking balance:", err);
+      // Handle error as needed
+    }
+  };
+
+  // useEffect to check balance when the component mounts
+  useEffect(() => {
+    checkBalance();
+  }, [token]); // Re-run when token changes
 
   return (
     <div className="navbar bg-black shadow-lg">
@@ -16,9 +43,11 @@ const Navbar = () => {
         <div className="container mx-auto flex justify-between items-center relative z-10">
           {/* Logo/Brand */}
           <div className="text-green-400 text-2xl font-bold">
-            EduLink
+            <a href="/">
+              EduLink
+            </a>
           </div>
-          
+
           {/* Navigation Links */}
           <div className="hidden md:flex space-x-4">
             <a href="/" className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">Home</a>
@@ -26,15 +55,22 @@ const Navbar = () => {
             <a href="/sessions" className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">My Sessions</a>
             <a href="/features" className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">Get Mentors</a>
           </div>
-          
+
           {/* Login/Signup or Logout */}
-          <div className="space-x-4">
+          <div className="space-x-4 flex items-center">
             {token ? (
-              <button 
-                onClick={handleLogout} 
-                className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">
-                Logout
-              </button>
+              <>
+                {/* Wallet Icon and Balance Display */}
+                <div className="flex items-center text-white">
+                  <FaWallet className="text-lg mr-1" /> {/* Wallet icon */}
+                  <span> {balance !== null ? balance + ' tokens' : 'Loading...'}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <a href="/auth" className="bg-gray-800 text-gray-300 hover:bg-green-500 hover:text-white transition duration-300 px-4 py-2 rounded-lg">Login</a>
