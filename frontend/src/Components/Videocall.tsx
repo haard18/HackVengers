@@ -18,6 +18,7 @@ const Videocall: React.FC = () => {
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const email = useLocation().state.traineeEmail;
 
+  const navigate = useNavigate(); // Initialize useNavigate
   const userType = localStorage.getItem('userType');
 
   useEffect(() => {
@@ -107,6 +108,7 @@ const Videocall: React.FC = () => {
     });
     console.log('Email sent:', response.data);
   };
+
 
   return (
     <div className='bg-black min-h-screen flex items-center justify-center'>
