@@ -3,7 +3,7 @@
 const Ratings = () => {
   return (
     <div>
-      this is ratinng
+      
     </div>
   )
 }
