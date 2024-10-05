@@ -5,7 +5,7 @@ import { BackgroundBeams } from '../Components/ui/background-beams'
 const Landingpage = () => {
   return (
     <>
-    <div className='bg-black h-screen'>
+    <div className='bg-black h-screen' style={{fontFamily:'"Baloo Bhai 2,sans-serif'}}>
         <BackgroundBeamsDemo/>
         <BackgroundBeams/>
     </div>

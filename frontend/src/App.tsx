@@ -12,6 +12,7 @@ import Ratings from './Pages/Ratings';
 
 function App() {
   return (
+    <div className="app " style={{fontFamily:'"Baloo Bhai 2", sans-serif'}} >
     <Router>
       <div className="navbar bg-gray-700">
       <Navbar />
@@ -28,6 +29,7 @@ function App() {
         {/* Add more routes as needed */}
       </Routes>
     </Router>
+    </div>
   );
 }
 
