@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 
@@ -23,7 +23,8 @@ const MySessions = () => {
     const [traineeEmail, setTraineeEmail] = useState<string>('');
     const navigate = useNavigate();
     const [sendingsessionId, setSendingsessionId] = useState<string>('');
-    const fetchMySessions = async () => {
+    console.log(sendingsessionId);
+    const fetchMySessions = useCallback(async () => {
         const response = await axios.get(`http://localhost:3000/api/${userType}/getMySessions`, {
             headers: { 'auth-token': token }
         });
@@ -33,7 +34,7 @@ const MySessions = () => {
         }
         console.log('Fetched sessions:', response.data);
         setSessions(response.data);
-    };
+    },[token, userType]);
 
     const handleAcceptSession = async (sessionId: string) => {
         try {
@@ -59,7 +60,7 @@ const MySessions = () => {
             return;
         }
         fetchMySessions();
-    }, [token]);
+    }, [token, fetchMySessions]);
 
     useEffect(() => {
         const upcomingSession = sessions.find(session => session.status === 'Accepted' && new Date(session.endTime) > new Date());
@@ -100,7 +101,7 @@ const MySessions = () => {
         
         <Navbar/>
     
-        <div className="bg-gray-900 p-8 h-screen text-gray-100">
+        <div className="bg-gray-900 p-8 h-full text-gray-100">
             <h2 className="text-white text-3xl mb-6 font-semibold">My Sessions</h2>
 
             {nextSession && (

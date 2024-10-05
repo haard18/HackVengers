@@ -49,7 +49,7 @@ const Videocall: React.FC = () => {
     return () => {
       peer.current?.destroy();
     };
-  }, []);
+  }, [sessionId]);
 
   const endCall = () => {
     call?.close();

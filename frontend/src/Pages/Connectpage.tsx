@@ -115,7 +115,7 @@ const Connectpage = () => {
     return (
         <>
         <Navbar/>
-        <div className="bg-gray-900 text-green-500 h-full p-8">
+        <div className="bg-gray-900 text-green-500 min-h-screen p-8 overflow-auto">
             <h2 className="text-4xl font-extrabold mb-6 text-center">Find Your Ideal Trainers</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {idealTrainers.map((trainer) => (
